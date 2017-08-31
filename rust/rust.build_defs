@@ -3,6 +3,9 @@
 These have been tested with Rust v1.8.0; they may work with
 older versions but we don't know specifically which ones.
 """
+# N.B. This works within the pleasings repo but not outside.
+#      Once committed we may change this to a URL.
+subinclude('//remote')
 
 
 def rust_library(name, srcs, deps=None, visibility=None):
@@ -78,10 +81,7 @@ def rust_test(name, srcs, deps=None, visibility=None):
 
 
 def _rustc_cmds(deps=None, crate_type=None, test=False):
-    try:
-        cmd = [CONFIG.RUSTC_TOOL, '$SRCS', '-o', '$OUT']
-    except KeyError:
-        raise ParseError('You must set rustc-tool in the [buildconfig] section of your .plzconfig to use Rust rules.')
+    cmd = [CONFIG.RUSTC_TOOL, '$SRCS', '-o', '$OUT']
     if crate_type:
         cmd.append('--crate-type=' + crate_type)
     if test:
@@ -118,27 +118,41 @@ def rust_toolchain(name, version, os=None, arch=None, hashes=None, deps=None, vi
     if not arch:
         if CONFIG.ARCH == 'amd64':
             arch = 'x86_64'
-        elif CONFIG.ARCH = 'x86':
+        elif CONFIG.ARCH == 'x86':
             arch = 'i686'
         else:
             raise ParseError('Unknown architecture %s, you must pass arch explicitly to rust_toolchain' % CONFIG.ARCH)
 
-    url = 'https://static.rust-lang.org/dist/rust-%s-%s-%s.tar.gz' % (version, arch, os)
-    remote_file(
-        name = name + '_download',
-        url = url,
+    base = '-'.join(['rust', version, arch, os])
+    download_rule = signed_remote_file(
+        name = '_%s#download' % name,
+        url = 'https://static.rust-lang.org/dist/%s.tar.gz' % base,
+        key = 'https://static.rust-lang.org/rust-key.gpg.ascii',
         hashes = hashes,
+        deps = deps,
     )
-    remote_file(
-        name = name + '_asc',
-        url = url + '.asc',
+    extract_rule = build_rule(
+        name = name,
+        tag = 'extract',
+        srcs = [download_rule],
+        outs = {
+            'rustc_bin': [base + '/rustc/bin/rustc'],
+            'rustc_lib': [base + '/rustc/lib'],
+            'cargo_bin': [base + '/cargo/bin/cargo'],
+            'stdlib': ['%s/rust-std-%s-%s' % (base, arch, os)],
+        },
+        cmd = 'tar -xzf $SRCS',
+        building_description = 'Extracting...',
+    )
+    # The final rule just outputs rustc. Later we might add extra rules for cargo etc as well.
+    return filegroup(
+        name = name,
+        srcs = [extract_rule + '|rustc_bin'],
+        visibility = visibility,
+        binary = True,
     )
 
 
-
-    os = os or '${OS/amd64/x86_64}'
-    arch = arch or '${OS/amd64/x86_64}'
-
-    cmds = [
-        'OS="%s"DXFG'
-    ]
+# Setting this allows anyone who's subincluded this file to use package() to override RUSTC_TOOL.
+# It's also a useful default if it's already installed and on their PATH.
+CONFIG.setdefault('RUSTC_TOOL', 'rustc')
