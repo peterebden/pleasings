@@ -78,7 +78,10 @@ def rust_test(name, srcs, deps=None, visibility=None):
 
 
 def _rustc_cmds(deps=None, crate_type=None, test=False):
-    cmd = [CONFIG.RUSTC_TOOL, '$SRCS', '-o', '$OUT']
+    try:
+        cmd = [CONFIG.RUSTC_TOOL, '$SRCS', '-o', '$OUT']
+    except KeyError:
+        raise ParseError('You must set rustc-tool in the [buildconfig] section of your .plzconfig to use Rust rules.')
     if crate_type:
         cmd.append('--crate-type=' + crate_type)
     if test:
@@ -92,7 +95,50 @@ def _rustc_cmds(deps=None, crate_type=None, test=False):
     }
 
 
-# Add rustc to the config so people can override with package().
-# In future it would be nice to be able to configure this kind of thing in plzconfig
-# but it's currently not possible to add arbitrary sections to it.
-CONFIG.setdefault('RUSTC_TOOL', 'rustc')
+def rust_toolchain(name, version, os=None, arch=None, hashes=None, deps=None, visibility=None):
+    """Defines a rule to fetch a Rust toolchain.
+
+    Args:
+      name (str): Name of the rule.
+      version (str): Version of Rust to download.
+      os (str): Operating system to download for, as the full triple, e.g. 'unknown-linux-gnu', 'pc-windows-msvc', etc.
+                Defaults to the current OS, as best we can.
+      arch (str): Architecture to download for, e.g. 'i686' or 'x86_64'. Defaults to the current one.
+      hashes (list) List of hashes to verify on download.
+      deps (list): Extra dependencies of the rule.
+      visibility (list): Visibility declaration of the rule.
+    """
+    if not os:
+        if CONFIG.OS == 'linux':
+            os = 'unknown-linux-gnu'
+        elif CONFIG.OS == 'darwin':
+            os = 'apple-darwin'
+        else:
+            raise ParseError('Unknown OS %s, you must pass os explicitly to rust_toolchain' % CONFIG.OS)
+    if not arch:
+        if CONFIG.ARCH == 'amd64':
+            arch = 'x86_64'
+        elif CONFIG.ARCH = 'x86':
+            arch = 'i686'
+        else:
+            raise ParseError('Unknown architecture %s, you must pass arch explicitly to rust_toolchain' % CONFIG.ARCH)
+
+    url = 'https://static.rust-lang.org/dist/rust-%s-%s-%s.tar.gz' % (version, arch, os)
+    remote_file(
+        name = name + '_download',
+        url = url,
+        hashes = hashes,
+    )
+    remote_file(
+        name = name + '_asc',
+        url = url + '.asc',
+    )
+
+
+
+    os = os or '${OS/amd64/x86_64}'
+    arch = arch or '${OS/amd64/x86_64}'
+
+    cmds = [
+        'OS="%s"DXFG'
+    ]
