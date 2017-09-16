@@ -3,8 +3,8 @@ package(default_visibility = ['PUBLIC'])
 
 yarn_js(
     name = 'yarn',
-    version = '0.28.4',
-    hash = 'db126d4911a74de90aeabc4aba1618ef9f42cfe5',
+    version = '1.0.2',
+    hash = 'e2079f7489676f1272158208adc77d05c52d55aa',
 )
 
 yarn_library(
