@@ -26,34 +26,20 @@ yarn_library(
     name = '%s',
     version = '%s',
     deps = [
-%s
-    ],
+%s    ],
 )
 """
 
 
-def add_deps(children, deps):
-    for child in children or []:
-        name, _, version = child['name'].partition('@')
-        if name in deps:
-            existing_version, _ = deps[name]
-            if existing_version != version:
-                raise ValueError('Got conflicting versions for for %s (%s vs. %s)' %
-                                 (name, version, existing_version))
-        else:
-            deps[name] = (version, list(add_deps(child.get('children'), deps)))
-        yield name
-
-
 def main():
     data = json.load(sys.stdin)
-    deps = {}
-    list(add_deps(data['data']['trees'], deps))
-    for pkg, (version, deps) in sorted(data.items()):
+    for item in data['data']['trees']:
+        name, _, version = item['name'].partition('@')
+        deps = [child['name'].split('@')[0] for child in item.get('children', [])]
         if deps:
-            sys.stdout.write(DEPS_TEMPLATE % (pkg, version, '\n'.join("        ':%s',\n" % dep for dep in deps)))
+            sys.stdout.write(DEPS_TEMPLATE % (name, version, ''.join("        ':%s',\n" % dep for dep in deps)))
         else:
-            sys.stdout.write(NO_DEPS_TEMPLATE % (pkg, version))
+            sys.stdout.write(NO_DEPS_TEMPLATE % (name, version))
 
 
 if __name__ == '__main__':
