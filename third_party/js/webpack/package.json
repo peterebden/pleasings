@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "babel-loader": "^7.1.2",
+    "babel-preset-es2015": "^6.24.1",
+    "shebang-loader": "^0.0.1",
     "webpack": "^3.6.0"
   }
 }

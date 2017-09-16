@@ -17,6 +17,9 @@ module.exports = {
     },
     module: {
 	rules: [{
+	    test: /main.js$/,
+	    loaders: ['shebang-loader', 'babel-loader'],
+	}, {
 	    test: /\.(js|jsx)$/,
 	    loader: 'babel-loader',
 	    query: {

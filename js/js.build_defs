@@ -100,7 +100,7 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, visibility=
             'js': [out or name + '.js'],
             'manifest': [manifest],
         },
-        cmd = 'export NODE_PATH=$TMP_DIR:$(dirname $TOOLS_WEBPACK); $TOOLS_NODE $TOOLS_WEBPACK/bin/webpack.js --config $TOOLS_CONFIG',
+        cmd = 'export NODE_PATH=%s; $TOOLS_NODE $TOOLS_WEBPACK/bin/webpack.js --config $TOOLS_CONFIG' % CONFIG.NODE_PATH,
         tools = {
             'node': [CONFIG.NODE_TOOL],
             'webpack': [CONFIG.WEBPACK_TOOL],
@@ -116,5 +116,6 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, visibility=
 
 # Set these so others can override them using package()
 CONFIG.setdefault('NODE_TOOL', 'node')
+CONFIG.setdefault('NODE_PATH', '$TMP_DIR:$TMP_DIR/third_party/js')
 CONFIG.setdefault('WEBPACK_TOOL', '//third_party/js:webpack')
 CONFIG.setdefault('WEBPACK_CONFIG', '')
