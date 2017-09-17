@@ -31,11 +31,35 @@ yarn_library(
 """
 
 
+def parse_name(item):
+    name, _, version = item['name'].partition('@')
+    return name
+
+
+def read_deps(items):
+    for item in items:
+        name, _, version = item['name'].partition('@')
+        deps = [parse_name(child) for child in item.get('children', [])]
+        yield name, (version, deps)
+
+
+def fix_deps(pkg, deps, seen=frozenset()):
+    seen = seen | {pkg['name']}
+    pkg['children'] = [fix_deps(child, deps, seen) for child in pkg.get('children', [])
+                       if parse_name(child) not in seen]
+    return pkg
+
+
 def main():
     data = json.load(sys.stdin)
+    items = dict(read_deps(data['data']['trees']))
+    # This is a little ugly; we need to restrict circular dependencies, which means we have to do
+    # it top-down, but the only thing giving us reliable information about where the top of the
+    # tree is is the color property.
     for item in data['data']['trees']:
-        name, _, version = item['name'].partition('@')
-        deps = [child['name'].split('@')[0] for child in item.get('children', [])]
+        if item.get('color') == 'bold':
+            fix_deps(item, items)
+    for name, (version, deps) in sorted(items.items()):
         if deps:
             sys.stdout.write(DEPS_TEMPLATE % (name, version, ''.join("        ':%s',\n" % dep for dep in deps)))
         else:
