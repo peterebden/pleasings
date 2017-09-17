@@ -51,6 +51,30 @@ def js_binary(name, srcs, out=None, bundles=None, visibility=None, deps=None):
     )
 
 
+def node_binary(name, srcs, out=None, visibility=None, deps=None):
+    """Similar to js_binary but the output is binary and prefixed with a Node shebang.
+
+    TODO(peter): Should we have better support for using this in the same package as
+                 js_binary, since they effectively require different webpack configs?
+
+    Args:
+      name (str): Name of the rule.
+      srcs (list): Source .js files. These are all treated as entry points.
+      out (str): Name of the output file. Defaults to `name.js`.
+      visibility (list): Visibility specification.
+      deps (list): Any dependencies.
+    """
+    return _webpack_rule(
+        name = name,
+        srcs = srcs,
+        out = out,
+        visibility = visibility,
+        deps = deps,
+        binary = True,
+        shebang = '#!/usr/bin/env node',
+    )
+
+
 def js_bundle(name, srcs, out=None, visibility=None, deps=None):
     """Defines a Javascript rule that uses Webpack to build a dll / vendor bundle.
 
@@ -77,7 +101,8 @@ def js_bundle(name, srcs, out=None, visibility=None, deps=None):
     )
 
 
-def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, visibility=None, deps=None):
+def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=False, shebang='',
+                  visibility=None, deps=None):
     """Internal function for the various webpack-calling rules above."""
     if not CONFIG.WEBPACK_CONFIG:
         raise ParseError('You must set webpack-config to a build rule containing your '
@@ -88,6 +113,11 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, visibility=
     bundles = bundles or []
     if any(bundle for bundle in bundles if not bundle.startswith(':') and not bundle.startswith('/')):
         raise ParseError('bundles argument must be a js_bundle rule or something similar')
+
+    cmd = 'export NODE_PATH=%s; $TOOLS_NODE $TOOLS_WEBPACK/bin/webpack.js --config $TOOLS_CONFIG' % CONFIG.NODE_PATH
+    if binary:
+        # TODO(peter): can we handle this inside Webpack somehow rather than this inelegant copy & cat?
+        cmd += ' && mv $OUTS_JS _tmp.js && echo "%s" > $OUTS_JS && cat _tmp.js >> $OUTS_JS' % shebang
 
     return build_rule(
         name = name,
@@ -100,7 +130,7 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, visibility=
             'js': [out or name + '.js'],
             'manifest': [manifest],
         },
-        cmd = 'export NODE_PATH=%s; $TOOLS_NODE $TOOLS_WEBPACK/bin/webpack.js --config $TOOLS_CONFIG' % CONFIG.NODE_PATH,
+        cmd = cmd,
         tools = {
             'node': [CONFIG.NODE_TOOL],
             'webpack': [CONFIG.WEBPACK_TOOL],
@@ -111,6 +141,7 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, visibility=
         deps = deps,
         needs_transitive_deps = True,
         output_is_complete = True,
+        binary = binary,
     )
 
 

@@ -10,7 +10,7 @@ filegroup(
     srcs = ['config.js'],
 )
 
-js_binary(
+node_binary(
     name = 'webpack',
     srcs = ['main.js', 'config.js'],
     deps = [
