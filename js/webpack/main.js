@@ -1,15 +1,9 @@
-#! /usr/bin/env node
-'use strict';
-/* eslint-env node*/
-
+const process = require('process');
 const webpack = require('webpack');
-
-const WebPackConfig = require('./config.js')();
+const WebPackConfig = require(process.env.TOOLS_CONFIG);
 
 const buildBundle = function() {
-
-  const compiler = webpack(WebPackConfig);
-
+  const compiler = webpack(WebPackConfig());
   compiler.run(function(err, stats) {
     if (stats.compilation.errors.length > 0) {
       throw Error(stats.compilation.errors.join('\n'));

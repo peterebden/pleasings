@@ -17,7 +17,6 @@ node_binary(
         '//third_party/js/webpack:babel-core',
         '//third_party/js/webpack:babel-loader',
         '//third_party/js/webpack:babel-preset-es2015',
-        '//third_party/js/webpack:shebang-loader',
         '//third_party/js/webpack:webpack',
     ],
     visibility = ['PUBLIC'],
