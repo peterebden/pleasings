@@ -43,11 +43,12 @@ def read_deps(items):
         yield name, (version, deps)
 
 
-def fix_deps(pkg, deps, seen=frozenset()):
-    seen = seen | {pkg['name']}
-    pkg['children'] = [fix_deps(child, deps, seen) for child in pkg.get('children', [])
-                       if parse_name(child) not in seen]
-    return pkg
+def fix_deps(name, data, seen=frozenset()):
+    seen = seen | {name}
+    version, deps = data[name]
+    deps = [fix_deps(dep, data, seen) for dep in deps if dep not in seen]
+    data[name] = (version, deps)
+    return name
 
 
 def main():
@@ -58,7 +59,7 @@ def main():
     # tree is is the color property.
     for item in data['data']['trees']:
         if item.get('color') == 'bold':
-            fix_deps(item, items)
+            fix_deps(parse_name(item), items)
     for name, (version, deps) in sorted(items.items()):
         if deps:
             sys.stdout.write(DEPS_TEMPLATE % (name, version, ''.join("        ':%s',\n" % dep for dep in deps)))

@@ -1,5 +1,12 @@
 subinclude('//js:yarn')
-package(default_visibility = ['PUBLIC'])
+package(default_visibility = ['//js/webpack:all'])
+
+# N.B. this is a minor hack to get around some cases where dependencies for webpack
+#      aren't copied as we'd like because it's a tool not a straight dep.
+filegroup(
+    name = 'webpack_tool',
+    srcs = [':webpack'],
+)
 
 yarn_library(
     name = 'abbrev',
@@ -1094,8 +1101,6 @@ yarn_library(
     name = 'es6-iterator',
     version = '2.0.1',
     deps = [
-        ':d',
-        ':es5-ext',
         ':es6-symbol',
     ],
 )
@@ -1128,10 +1133,6 @@ yarn_library(
 yarn_library(
     name = 'es6-symbol',
     version = '3.1.1',
-    deps = [
-        ':d',
-        ':es5-ext',
-    ],
 )
 
 yarn_library(
