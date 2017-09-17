@@ -87,6 +87,11 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'asap',
+    version = '2.0.5',
+)
+
+yarn_library(
     name = 'asn1',
     version = '0.2.3',
 )
@@ -1180,6 +1185,14 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'encoding',
+    version = '0.1.12',
+    deps = [
+        ':iconv-lite',
+    ],
+)
+
+yarn_library(
     name = 'enhanced-resolve',
     version = '3.4.1',
     deps = [
@@ -1373,6 +1386,20 @@ yarn_library(
 yarn_library(
     name = 'fast-deep-equal',
     version = '1.0.0',
+)
+
+yarn_library(
+    name = 'fbjs',
+    version = '0.8.12',
+    deps = [
+        ':core-js',
+        ':isomorphic-fetch',
+        ':loose-envify',
+        ':object-assign',
+        ':promise',
+        ':setimmediate',
+        ':ua-parser-js',
+    ],
 )
 
 yarn_library(
@@ -1663,6 +1690,11 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'iconv-lite',
+    version = '0.4.13',
+)
+
+yarn_library(
     name = 'ieee754',
     version = '1.1.8',
 )
@@ -1803,6 +1835,11 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'is-stream',
+    version = '1.1.0',
+)
+
+yarn_library(
     name = 'is-symbol',
     version = '1.0.1',
 )
@@ -1822,6 +1859,15 @@ yarn_library(
     version = '2.1.0',
     deps = [
         ':isarray',
+    ],
+)
+
+yarn_library(
+    name = 'isomorphic-fetch',
+    version = '2.2.1',
+    deps = [
+        ':node-fetch',
+        ':whatwg-fetch',
     ],
 )
 
@@ -2046,6 +2092,15 @@ yarn_library(
 yarn_library(
     name = 'nan',
     version = '2.7.0',
+)
+
+yarn_library(
+    name = 'node-fetch',
+    version = '1.6.3',
+    deps = [
+        ':encoding',
+        ':is-stream',
+    ],
 )
 
 yarn_library(
@@ -2301,6 +2356,23 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'promise',
+    version = '7.1.1',
+    deps = [
+        ':asap',
+    ],
+)
+
+yarn_library(
+    name = 'prop-types',
+    version = '15.5.10',
+    deps = [
+        ':fbjs',
+        ':loose-envify',
+    ],
+)
+
+yarn_library(
     name = 'prr',
     version = '0.0.0',
 )
@@ -2362,6 +2434,28 @@ yarn_library(
         ':ini',
         ':minimist',
         ':strip-json-comments',
+    ],
+)
+
+yarn_library(
+    name = 'react',
+    version = '15.5.4',
+    deps = [
+        ':fbjs',
+        ':loose-envify',
+        ':object-assign',
+        ':prop-types',
+    ],
+)
+
+yarn_library(
+    name = 'react-dom',
+    version = '15.5.4',
+    deps = [
+        ':fbjs',
+        ':loose-envify',
+        ':object-assign',
+        ':prop-types',
     ],
 )
 
@@ -2789,6 +2883,11 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'ua-parser-js',
+    version = '0.7.12',
+)
+
+yarn_library(
     name = 'uglify-js',
     version = '2.8.29',
     deps = [
@@ -2909,6 +3008,11 @@ yarn_library(
         ':source-list-map',
         ':source-map',
     ],
+)
+
+yarn_library(
+    name = 'whatwg-fetch',
+    version = '2.0.3',
 )
 
 yarn_library(
