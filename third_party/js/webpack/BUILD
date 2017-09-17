@@ -160,6 +160,47 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'babel-core',
+    version = '6.26.0',
+    deps = [
+        ':babel-code-frame',
+        ':babel-generator',
+        ':babel-helpers',
+        ':babel-messages',
+        ':babel-register',
+        ':babel-runtime',
+        ':babel-template',
+        ':babel-traverse',
+        ':babel-types',
+        ':babylon',
+        ':convert-source-map',
+        ':debug',
+        ':json5',
+        ':lodash',
+        ':minimatch',
+        ':path-is-absolute',
+        ':private',
+        ':slash',
+        ':source-map',
+    ],
+)
+
+yarn_library(
+    name = 'babel-generator',
+    version = '6.26.0',
+    deps = [
+        ':babel-messages',
+        ':babel-runtime',
+        ':babel-types',
+        ':detect-indent',
+        ':jsesc',
+        ':lodash',
+        ':source-map',
+        ':trim-right',
+    ],
+)
+
+yarn_library(
     name = 'babel-helper-call-delegate',
     version = '6.24.1',
     deps = [
@@ -240,6 +281,15 @@ yarn_library(
         ':babel-template',
         ':babel-traverse',
         ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-helpers',
+    version = '6.24.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-template',
     ],
 )
 
@@ -526,6 +576,19 @@ yarn_library(
         ':babel-plugin-transform-es2015-typeof-symbol',
         ':babel-plugin-transform-es2015-unicode-regex',
         ':babel-plugin-transform-regenerator',
+    ],
+)
+
+yarn_library(
+    name = 'babel-register',
+    version = '6.26.0',
+    deps = [
+        ':babel-runtime',
+        ':core-js',
+        ':home-or-tmp',
+        ':lodash',
+        ':mkdirp',
+        ':source-map-support',
     ],
 )
 
@@ -843,6 +906,11 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'convert-source-map',
+    version = '1.5.0',
+)
+
+yarn_library(
     name = 'core-js',
     version = '2.5.1',
 )
@@ -994,6 +1062,14 @@ yarn_library(
     deps = [
         ':inherits',
         ':minimalistic-assert',
+    ],
+)
+
+yarn_library(
+    name = 'detect-indent',
+    version = '4.0.0',
+    deps = [
+        ':repeating',
     ],
 )
 
@@ -1531,6 +1607,15 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'home-or-tmp',
+    version = '2.0.0',
+    deps = [
+        ':os-homedir',
+        ':os-tmpdir',
+    ],
+)
+
+yarn_library(
     name = 'hosted-git-info',
     version = '2.5.0',
 )
@@ -1657,6 +1742,14 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'is-finite',
+    version = '1.0.2',
+    deps = [
+        ':number-is-nan',
+    ],
+)
+
+yarn_library(
     name = 'is-fullwidth-code-point',
     version = '2.0.0',
 )
@@ -1750,7 +1843,7 @@ yarn_library(
 
 yarn_library(
     name = 'jsesc',
-    version = '0.5.0',
+    version = '1.3.0',
 )
 
 yarn_library(
@@ -2089,6 +2182,11 @@ yarn_library(
         ':gauge',
         ':set-blocking',
     ],
+)
+
+yarn_library(
+    name = 'number-is-nan',
+    version = '1.0.1',
 )
 
 yarn_library(
@@ -2480,6 +2578,14 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'repeating',
+    version = '2.0.1',
+    deps = [
+        ':is-finite',
+    ],
+)
+
+yarn_library(
     name = 'request',
     version = '2.81.0',
     deps = [
@@ -2608,6 +2714,11 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'slash',
+    version = '1.0.0',
+)
+
+yarn_library(
     name = 'sntp',
     version = '1.0.9',
     deps = [
@@ -2623,6 +2734,14 @@ yarn_library(
 yarn_library(
     name = 'source-map',
     version = '0.5.7',
+)
+
+yarn_library(
+    name = 'source-map-support',
+    version = '0.4.18',
+    deps = [
+        ':source-map',
+    ],
 )
 
 yarn_library(
@@ -2821,6 +2940,11 @@ yarn_library(
     deps = [
         ':punycode',
     ],
+)
+
+yarn_library(
+    name = 'trim-right',
+    version = '1.0.1',
 )
 
 yarn_library(
