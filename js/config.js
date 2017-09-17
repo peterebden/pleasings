@@ -1,7 +1,6 @@
 const path = require('path');
 const process = require('process');
 const webpack = require('webpack');
-const ClosureCompilerPlugin = require('webpack-closure-compiler');
 
 // Map plz's standard build config names to something meaningful to webpack.
 const buildConfig = process.env.BUILD_CONFIG;
@@ -13,13 +12,6 @@ let plugins = [
 	    NODE_ENV: JSON.stringify(nodeEnv)
 	}
     }),
-    new ClosureCompilerPlugin({
-        compiler: {
-            language_in: 'ECMASCRIPT6',
-            language_out: 'ECMASCRIPT5',
-        },
-        concurrency: 3,
-    })
 ]
 
 let entry = process.env.SRCS_JS.split(' ').map(src => './' + src);
