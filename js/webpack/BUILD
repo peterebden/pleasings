@@ -20,4 +20,5 @@ node_binary(
         '//third_party/js/webpack:shebang-loader',
         '//third_party/js/webpack:webpack',
     ],
+    visibility = ['PUBLIC'],
 )

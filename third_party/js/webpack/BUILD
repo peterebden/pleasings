@@ -3,9 +3,13 @@ package(default_visibility = ['//js/webpack:all'])
 
 # N.B. this is a minor hack to get around some cases where dependencies for webpack
 #      aren't copied as we'd like because it's a tool not a straight dep.
-filegroup(
+build_rule(
     name = 'webpack_tool',
     srcs = [':webpack'],
+    outs = ['bin/webpack.js'],
+    cmd = 'cp $SRCS/bin/webpack.js $OUT',
+    exported_deps = [':webpack'],
+    output_is_complete = False,
 )
 
 yarn_library(
