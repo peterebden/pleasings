@@ -841,7 +841,6 @@ yarn_library(
         ':is-glob',
         ':path-is-absolute',
         ':readdirp',
-        ':fsevents',
     ],
 )
 
@@ -1412,15 +1411,6 @@ yarn_library(
 yarn_library(
     name = 'fs.realpath',
     version = '1.0.0',
-)
-
-yarn_library(
-    name = 'fsevents',
-    version = '1.1.2',
-    deps = [
-        ':nan',
-        ':node-pre-gyp',
-    ],
 )
 
 yarn_library(
@@ -2117,23 +2107,6 @@ yarn_library(
         ':url',
         ':util',
         ':vm-browserify',
-    ],
-)
-
-yarn_library(
-    name = 'node-pre-gyp',
-    version = '0.6.37',
-    deps = [
-        ':mkdirp',
-        ':nopt',
-        ':npmlog',
-        ':rc',
-        ':request',
-        ':rimraf',
-        ':semver',
-        ':tape',
-        ':tar',
-        ':tar-pack',
     ],
 )
 

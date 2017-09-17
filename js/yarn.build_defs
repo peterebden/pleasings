@@ -21,6 +21,25 @@ def yarn_library(name, version, out=None, hashes=None, test_only=False, visibili
       visibility (list): Visibility declaration for this rule.
       deps (list): Any other dependencies of the rule.
     """
+    # Temp hack to get this working on a plane.
+    system_library(
+        name = name + '_sys',
+        srcs = ['/var/tmp/yarn/npm-%s-%s' % (name, version)],
+    )
+
+    return build_rule(
+        name = name,
+        srcs = [':%s_sys' % name],
+        outs = [name],
+        cmd = 'mv $SRCS $OUT',
+        output_is_complete = False,
+        visibility = visibility,
+        exported_deps = deps,  # Assume we always need them all to be exported.
+        labels = ['yarn:%s@%s' % (name, version)],
+    )
+
+
+
     url = 'https://registry.yarnpkg.com/%s/-/%s-%s.tgz' % (name, name, version)
     return build_rule(
         name = name,
