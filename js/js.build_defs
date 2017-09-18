@@ -197,6 +197,7 @@ def build_rollup(name, main, config, rollup, visibility=None, deps=None):
       visibility (list): Visibility specification.
       deps (list): Any dependencies.
     """
+    # For some weird reason this only works if it is in a directory literally called node_modules?!?
     cmd = ' && '.join([
         'mv $(dir %s) node_modules' % rollup,
         'export NODE_PATH="./node_modules"',

@@ -327,6 +327,14 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'rollup-plugin-json',
+    version = '2.3.0',
+    deps = [
+        ':rollup-pluginutils',
+    ],
+)
+
+yarn_library(
     name = 'rollup-plugin-node-resolve',
     version = '3.0.0',
     deps = [

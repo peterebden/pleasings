@@ -3,13 +3,15 @@ const process = require('process');
 
 import commonjs from 'rollup-plugin-commonjs';
 import resolve from 'rollup-plugin-node-resolve';
+import json from 'rollup-plugin-json';
 
 export default {
     input: process.env.SRCS_JS,
     external: [],
     plugins: [
 	resolve(),
-	commonjs()
+	commonjs(),
+	json()
     ],
     output: {
 	format: 'cjs',

@@ -12,5 +12,6 @@ build_rollup(
     deps = [
         '//third_party/js/rollup:rollup-plugin-node-resolve',
         '//third_party/js/rollup:rollup-plugin-commonjs',
+        '//third_party/js/rollup:rollup-plugin-json',
     ],
 )
