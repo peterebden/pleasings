@@ -101,6 +101,49 @@ def js_bundle(name, srcs, out=None, visibility=None, deps=None):
     )
 
 
+def webpack_binary(name, srcs, config, webpack, visibility=None, deps=None):
+    """Defines a Javascript rule that builds a Webpack bundle for compiling other rules.
+
+    Args:
+      name (str): Name of the rule.
+      srcs (list): Source .js files. These are all treated as entry points.
+      config (str): Webpack config file.
+      webpack (str): Webpack dependency (typically a yarn_library).
+      visibility (list): Visibility specification.
+      deps (list): Any dependencies.
+    """
+    # Small nicety: handle the config not being a rule (since tools cannot be files)
+    if not config.startswith(':') and not config.startswith('//'):
+        config = filegroup(
+            name = name,
+            tag = 'config',
+            srcs = [config],
+        )
+
+    cmd = 'export NODE_PATH=%s:$(dir %s); $TOOLS_NODE $(location %s) --config $TOOLS_CONFIG' % (CONFIG.NODE_PATH, webpack, webpack)
+    # TODO(peter): can we handle this inside Webpack somehow rather than this inelegant copy & cat?
+    cmd += ' && mv $OUT _tmp.js && echo "#!/usr/bin/env node" > $OUT && cat _tmp.js >> $OUT'
+
+    deps = deps or []
+    return build_rule(
+        name = name,
+        srcs = srcs,
+        outs = [name + '.js'],
+        cmd = cmd,
+        tools = {
+            'node': [CONFIG.NODE_TOOL],
+            'config': [CONFIG.WEBPACK_CONFIG],
+        },
+        # Note that webpack has to be a dep not a tool so that we get its dependencies too.
+        deps = deps + [webpack],
+        requires = ['js'],
+        visibility = visibility,
+        needs_transitive_deps = True,
+        output_is_complete = True,
+        binary = True,
+    )
+
+
 def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=False, shebang='',
                   visibility=None, deps=None):
     """Internal function for the various webpack-calling rules above."""

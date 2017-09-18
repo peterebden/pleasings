@@ -1,5 +1,3 @@
-// This is the config for building Webpack itself.
-// It's distinct from the config that we use for building JS for the web.
 const path = require('path');
 const process = require('process');
 const webpack = require('webpack');
@@ -8,12 +6,41 @@ const webpack = require('webpack');
 const buildConfig = process.env.BUILD_CONFIG;
 const nodeEnv = buildConfig === 'opt' ? 'production' : 'development';
 
+let plugins = [
+    new webpack.DefinePlugin({
+	'process.env': {
+	    NODE_ENV: JSON.stringify(nodeEnv)
+	}
+    }),
+]
+
+let entry = process.env.SRCS_JS.split(' ').map(src => './' + src);
+let library = undefined;
+if (process.env.OUTS_MANIFEST) {
+    // We are building a vendor bundle,
+    const name = path.basename(process.env.OUTS_JS, '.js');
+    entry = {[name]: process.env.SRCS_JS.split(' ')};
+    library = name;
+    plugins.push(new webpack.DllPlugin({
+        name: name,
+        path: path.join(process.env.TMP_DIR, process.env.OUTS_MANIFEST)
+    }));
+} else if (process.env.SRCS_DLL) {
+    // We have some vendor DLLs to link to.
+    const dlls = process.env.SRCS_DLL.split(' ');
+    const manifests = process.env.SRCS_MANIFEST.split(' ');
+    plugins = plugins.concat(dlls.map((dll, i) => new webpack.DllReferencePlugin({
+	name: path.basename(dll, '.js'),
+	manifest: require(manifests[i]),
+    })));
+}
+
 module.exports = {
-    entry: process.env.SRCS_JS.split(' ').map(src => './' + src),
-    target: 'node',
+    entry: entry,
     output: {
 	path: process.env.TMP_DIR,
         filename: path.basename(process.env.OUTS_JS),
+	library: library,
     },
     module: {
 	rules: [{
@@ -22,6 +49,7 @@ module.exports = {
 	    query: {
 		presets: [
 		    'es2015',
+		    'react'
 		],
 		plugins: []
 	    },
@@ -33,11 +61,5 @@ module.exports = {
     resolveLoader: {
 	modules: process.env.NODE_PATH.split(':'),
     },
-    plugins: [
-	new webpack.DefinePlugin({
-	    'process.env': {
-		NODE_ENV: JSON.stringify(nodeEnv)
-	    }
-	})
-    ],
+    plugins: plugins,
 };
