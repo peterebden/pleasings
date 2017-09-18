@@ -120,19 +120,19 @@ def webpack_binary(name, srcs, config, webpack, visibility=None, deps=None):
             srcs = [config],
         )
 
-    cmd = 'export NODE_PATH=%s:$(dir %s); $TOOLS_NODE $(location %s) --config $TOOLS_CONFIG' % (CONFIG.NODE_PATH, webpack, webpack)
+    cmd = 'export NODE_PATH=%s:$(dir %s); $TOOLS_NODE $(location %s)/bin/webpack.js --config $TOOLS_CONFIG' % (CONFIG.NODE_PATH, webpack, webpack)
     # TODO(peter): can we handle this inside Webpack somehow rather than this inelegant copy & cat?
     cmd += ' && mv $OUT _tmp.js && echo "#!/usr/bin/env node" > $OUT && cat _tmp.js >> $OUT'
 
     deps = deps or []
     return build_rule(
         name = name,
-        srcs = srcs,
-        outs = [name + '.js'],
+        srcs = {'js': srcs},
+        outs = {'js': [name + '.js']},
         cmd = cmd,
         tools = {
             'node': [CONFIG.NODE_TOOL],
-            'config': [CONFIG.WEBPACK_CONFIG],
+            'config': [config],
         },
         # Note that webpack has to be a dep not a tool so that we get its dependencies too.
         deps = deps + [webpack],
@@ -147,9 +147,6 @@ def webpack_binary(name, srcs, config, webpack, visibility=None, deps=None):
 def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=False, shebang='',
                   visibility=None, deps=None):
     """Internal function for the various webpack-calling rules above."""
-    if not CONFIG.WEBPACK_CONFIG:
-        raise ParseError('You must set webpack-config to a build rule containing your '
-                         'webpack config file in the [buildconfig] section of your .plzconfig.')
 
     # Because we identify specific outs from the bundle rules, they have to be actual rules and
     # can't just be source files. Detect here because the errors can be a bit obtuse later.
@@ -157,7 +154,7 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=Fals
     if any(bundle for bundle in bundles if not bundle.startswith(':') and not bundle.startswith('/')):
         raise ParseError('bundles argument must be a js_bundle rule or something similar')
 
-    cmd = 'export NODE_PATH=%s; $TOOLS_NODE $TOOLS_WEBPACK --config $TOOLS_CONFIG' % CONFIG.NODE_PATH
+    cmd = 'export NODE_PATH=%s; $TOOLS_NODE $TOOLS_WEBPACK' % CONFIG.NODE_PATH
     if binary:
         # TODO(peter): can we handle this inside Webpack somehow rather than this inelegant copy & cat?
         cmd += ' && mv $OUTS_JS _tmp.js && echo "%s" > $OUTS_JS && cat _tmp.js >> $OUTS_JS' % shebang
@@ -177,7 +174,6 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=Fals
         tools = {
             'node': [CONFIG.NODE_TOOL],
             'webpack': [CONFIG.WEBPACK_TOOL],
-            'config': [CONFIG.WEBPACK_CONFIG],
         },
         requires = ['js'],
         visibility = visibility,
@@ -192,4 +188,3 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=Fals
 CONFIG.setdefault('NODE_TOOL', 'node')
 CONFIG.setdefault('NODE_PATH', '$TMP_DIR:$TMP_DIR/third_party/js')
 CONFIG.setdefault('WEBPACK_TOOL', '//third_party/js:webpack')
-CONFIG.setdefault('WEBPACK_CONFIG', '')
