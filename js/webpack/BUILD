@@ -30,9 +30,4 @@ webpack_binary(
     srcs = ['node_main.js', 'node_config.js'],
     webpack = '//third_party/js/webpack',
     config = ':node_config',
-    deps = [
-        '//third_party/js/webpack:babel-core',
-        '//third_party/js/webpack:babel-loader',
-        '//third_party/js/webpack:babel-preset-es2015',
-    ],
 )

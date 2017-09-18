@@ -16,16 +16,7 @@ module.exports = {
         filename: path.basename(process.env.OUTS_JS),
     },
     module: {
-	rules: [{
-	    test: /\.(js|jsx)$/,
-	    loader: 'babel-loader',
-	    query: {
-		presets: [
-		    'es2015',
-		],
-		plugins: []
-	    },
-	}]
+	rules: []
     },
     resolve: {
 	modules: process.env.NODE_PATH.split(':'),

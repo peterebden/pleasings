@@ -1,6 +1,7 @@
 const path = require('path');
 const process = require('process');
 const webpack = require('webpack');
+const babelLoader = require('babel-loader');
 
 // Map plz's standard build config names to something meaningful to webpack.
 const buildConfig = process.env.BUILD_CONFIG;
