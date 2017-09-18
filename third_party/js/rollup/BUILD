@@ -7,6 +7,16 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'ansi-regex',
+    version = '2.1.1',
+)
+
+yarn_library(
+    name = 'ansi-styles',
+    version = '2.2.1',
+)
+
+yarn_library(
     name = 'arr-diff',
     version = '2.0.0',
     deps = [
@@ -22,6 +32,154 @@ yarn_library(
 yarn_library(
     name = 'array-unique',
     version = '0.2.1',
+)
+
+yarn_library(
+    name = 'babel-code-frame',
+    version = '6.26.0',
+    deps = [
+        ':chalk',
+        ':esutils',
+        ':js-tokens',
+    ],
+)
+
+yarn_library(
+    name = 'babel-core',
+    version = '6.26.0',
+    deps = [
+        ':babel-code-frame',
+        ':babel-generator',
+        ':babel-helpers',
+        ':babel-messages',
+        ':babel-register',
+        ':babel-runtime',
+        ':babel-template',
+        ':babel-traverse',
+        ':babel-types',
+        ':babylon',
+        ':convert-source-map',
+        ':debug',
+        ':json5',
+        ':lodash',
+        ':minimatch',
+        ':path-is-absolute',
+        ':private',
+        ':slash',
+        ':source-map',
+    ],
+)
+
+yarn_library(
+    name = 'babel-generator',
+    version = '6.26.0',
+    deps = [
+        ':babel-messages',
+        ':babel-runtime',
+        ':babel-types',
+        ':detect-indent',
+        ':jsesc',
+        ':lodash',
+        ':source-map',
+        ':trim-right',
+    ],
+)
+
+yarn_library(
+    name = 'babel-helpers',
+    version = '6.24.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-template',
+    ],
+)
+
+yarn_library(
+    name = 'babel-messages',
+    version = '6.23.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-register',
+    version = '6.26.0',
+    deps = [
+        ':babel-runtime',
+        ':core-js',
+        ':home-or-tmp',
+        ':lodash',
+        ':mkdirp',
+        ':source-map-support',
+    ],
+)
+
+yarn_library(
+    name = 'babel-runtime',
+    version = '6.26.0',
+    deps = [
+        ':core-js',
+        ':regenerator-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-template',
+    version = '6.26.0',
+    deps = [
+        ':babel-runtime',
+        ':babel-traverse',
+        ':babel-types',
+        ':babylon',
+        ':lodash',
+    ],
+)
+
+yarn_library(
+    name = 'babel-traverse',
+    version = '6.26.0',
+    deps = [
+        ':babel-code-frame',
+        ':babel-messages',
+        ':babel-runtime',
+        ':babel-types',
+        ':babylon',
+        ':debug',
+        ':globals',
+        ':invariant',
+        ':lodash',
+    ],
+)
+
+yarn_library(
+    name = 'babel-types',
+    version = '6.26.0',
+    deps = [
+        ':babel-runtime',
+        ':esutils',
+        ':lodash',
+        ':to-fast-properties',
+    ],
+)
+
+yarn_library(
+    name = 'babylon',
+    version = '6.18.0',
+)
+
+yarn_library(
+    name = 'balanced-match',
+    version = '1.0.0',
+)
+
+yarn_library(
+    name = 'brace-expansion',
+    version = '1.1.8',
+    deps = [
+        ':balanced-match',
+        ':concat-map',
+    ],
 )
 
 yarn_library(
@@ -48,8 +206,61 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'chalk',
+    version = '1.1.3',
+    deps = [
+        ':ansi-styles',
+        ':escape-string-regexp',
+        ':has-ansi',
+        ':strip-ansi',
+        ':supports-color',
+    ],
+)
+
+yarn_library(
+    name = 'concat-map',
+    version = '0.0.1',
+)
+
+yarn_library(
+    name = 'convert-source-map',
+    version = '1.5.0',
+)
+
+yarn_library(
+    name = 'core-js',
+    version = '2.5.1',
+)
+
+yarn_library(
+    name = 'debug',
+    version = '2.6.8',
+    deps = [
+        ':ms',
+    ],
+)
+
+yarn_library(
+    name = 'detect-indent',
+    version = '4.0.0',
+    deps = [
+        ':repeating',
+    ],
+)
+
+yarn_library(
+    name = 'escape-string-regexp',
+    version = '1.0.5',
+)
+
+yarn_library(
     name = 'estree-walker',
     version = '0.5.0',
+)
+
+yarn_library(
+    name = 'esutils',
+    version = '2.0.2',
 )
 
 yarn_library(
@@ -124,6 +335,36 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'globals',
+    version = '9.18.0',
+)
+
+yarn_library(
+    name = 'has-ansi',
+    version = '2.0.0',
+    deps = [
+        ':ansi-regex',
+    ],
+)
+
+yarn_library(
+    name = 'home-or-tmp',
+    version = '2.0.0',
+    deps = [
+        ':os-homedir',
+        ':os-tmpdir',
+    ],
+)
+
+yarn_library(
+    name = 'invariant',
+    version = '2.2.2',
+    deps = [
+        ':loose-envify',
+    ],
+)
+
+yarn_library(
     name = 'is-buffer',
     version = '1.1.5',
 )
@@ -149,6 +390,14 @@ yarn_library(
 yarn_library(
     name = 'is-extglob',
     version = '1.0.0',
+)
+
+yarn_library(
+    name = 'is-finite',
+    version = '1.0.2',
+    deps = [
+        ':number-is-nan',
+    ],
 )
 
 yarn_library(
@@ -196,10 +445,38 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'js-tokens',
+    version = '3.0.2',
+)
+
+yarn_library(
+    name = 'jsesc',
+    version = '1.3.0',
+)
+
+yarn_library(
+    name = 'json5',
+    version = '0.5.1',
+)
+
+yarn_library(
     name = 'kind-of',
     version = '4.0.0',
     deps = [
         ':is-buffer',
+    ],
+)
+
+yarn_library(
+    name = 'lodash',
+    version = '4.17.4',
+)
+
+yarn_library(
+    name = 'loose-envify',
+    version = '1.3.1',
+    deps = [
+        ':js-tokens',
     ],
 )
 
@@ -232,11 +509,42 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'minimatch',
+    version = '3.0.4',
+    deps = [
+        ':brace-expansion',
+    ],
+)
+
+yarn_library(
+    name = 'minimist',
+    version = '0.0.8',
+)
+
+yarn_library(
+    name = 'mkdirp',
+    version = '0.5.1',
+    deps = [
+        ':minimist',
+    ],
+)
+
+yarn_library(
+    name = 'ms',
+    version = '2.0.0',
+)
+
+yarn_library(
     name = 'normalize-path',
     version = '2.1.1',
     deps = [
         ':remove-trailing-separator',
     ],
+)
+
+yarn_library(
+    name = 'number-is-nan',
+    version = '1.0.1',
 )
 
 yarn_library(
@@ -246,6 +554,16 @@ yarn_library(
         ':for-own',
         ':is-extendable',
     ],
+)
+
+yarn_library(
+    name = 'os-homedir',
+    version = '1.0.2',
+)
+
+yarn_library(
+    name = 'os-tmpdir',
+    version = '1.0.2',
 )
 
 yarn_library(
@@ -260,6 +578,11 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'path-is-absolute',
+    version = '1.0.1',
+)
+
+yarn_library(
     name = 'path-parse',
     version = '1.0.5',
 )
@@ -270,12 +593,22 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'private',
+    version = '0.1.7',
+)
+
+yarn_library(
     name = 'randomatic',
     version = '1.1.7',
     deps = [
         ':is-number',
         ':kind-of',
     ],
+)
+
+yarn_library(
+    name = 'regenerator-runtime',
+    version = '0.11.0',
 )
 
 yarn_library(
@@ -302,6 +635,14 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'repeating',
+    version = '2.0.1',
+    deps = [
+        ':is-finite',
+    ],
+)
+
+yarn_library(
     name = 'resolve',
     version = '1.4.0',
     deps = [
@@ -312,6 +653,14 @@ yarn_library(
 yarn_library(
     name = 'rollup',
     version = '0.50.0',
+)
+
+yarn_library(
+    name = 'rollup-plugin-babel',
+    version = '3.0.2',
+    deps = [
+        ':rollup-pluginutils',
+    ],
 )
 
 yarn_library(
@@ -352,6 +701,47 @@ yarn_library(
         ':estree-walker',
         ':micromatch',
     ],
+)
+
+yarn_library(
+    name = 'slash',
+    version = '1.0.0',
+)
+
+yarn_library(
+    name = 'source-map',
+    version = '0.5.7',
+)
+
+yarn_library(
+    name = 'source-map-support',
+    version = '0.4.18',
+    deps = [
+        ':source-map',
+    ],
+)
+
+yarn_library(
+    name = 'strip-ansi',
+    version = '3.0.1',
+    deps = [
+        ':ansi-regex',
+    ],
+)
+
+yarn_library(
+    name = 'supports-color',
+    version = '2.0.0',
+)
+
+yarn_library(
+    name = 'to-fast-properties',
+    version = '1.0.3',
+)
+
+yarn_library(
+    name = 'trim-right',
+    version = '1.0.1',
 )
 
 yarn_library(
