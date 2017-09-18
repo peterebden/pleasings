@@ -4,11 +4,12 @@ package(
     rollup_tool = '//third_party/js/rollup',
 )
 
-js_binary(
+build_rollup(
     name = 'rollup_node',
-    srcs = ['node.js'],
+    main = 'node.js',
+    config = 'node.config.js',
+    rollup = '//third_party/js/rollup',
     deps = [
-        '//third_party/js/rollup',
         '//third_party/js/rollup:rollup-plugin-node-resolve',
         '//third_party/js/rollup:rollup-plugin-commonjs',
     ],

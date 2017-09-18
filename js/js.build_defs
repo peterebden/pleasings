@@ -158,7 +158,7 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=Fals
     )
 
 
-def _rollup_rule(name, srcs, out=None, manifest=None, visibility=None, deps=None):
+def _rollup_rule(name, srcs, out=None, visibility=None, deps=None):
     """Internal function for the various webpack-calling rules above."""
     if not CONFIG.ROLLUP_TOOL:
         raise ParseError('You must set rollup-tool in the [buildconfig] section of '
@@ -183,6 +183,37 @@ def _rollup_rule(name, srcs, out=None, manifest=None, visibility=None, deps=None
         needs_transitive_deps = True,
         output_is_complete = True,
         binary = True,
+    )
+
+
+def build_rollup(name, main, config, rollup, visibility=None, deps=None):
+    """Helper rule to bootstrap a binary using Rollup.
+
+    Args:
+      name (str): Name of the rule
+      main (str): JS file that is the entry point
+      config (str): Rollup config file to define how to build it
+      rollup (str): Rule providing a stock rollup install (typically a yarn_library)
+      visibility (list): Visibility specification.
+      deps (list): Any dependencies.
+    """
+    deps = deps or []
+    return build_rule(
+        name = name,
+        srcs = {
+            'main': [main],
+            'config': [config],
+        },
+        outs = {'js': [name + '.js']},
+        tools = [CONFIG.NODE_TOOL],
+        cmd = 'export NODE_PATH=%s:$(dir %s); $TOOL $(location %s)/bin/rollup --config $SRCS_CONFIG $SRCS_MAIN' %
+            (CONFIG.NODE_PATH, rollup, rollup),
+        deps = deps + [rollup],
+        requires = ['js'],
+        visibility = visibility,
+        binary = True,
+        needs_transitive_deps = True,
+        output_is_complete = True,
     )
 
 
