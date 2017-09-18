@@ -1,0 +1,356 @@
+subinclude('//js:yarn')
+package(default_visibility = ['//js/rollup:all'])
+
+yarn_library(
+    name = 'acorn',
+    version = '5.1.2',
+)
+
+yarn_library(
+    name = 'arr-diff',
+    version = '2.0.0',
+    deps = [
+        ':arr-flatten',
+    ],
+)
+
+yarn_library(
+    name = 'arr-flatten',
+    version = '1.1.0',
+)
+
+yarn_library(
+    name = 'array-unique',
+    version = '0.2.1',
+)
+
+yarn_library(
+    name = 'braces',
+    version = '1.8.5',
+    deps = [
+        ':expand-range',
+        ':preserve',
+        ':repeat-element',
+    ],
+)
+
+yarn_library(
+    name = 'browser-resolve',
+    version = '1.11.2',
+    deps = [
+        ':resolve',
+        ':resolve',
+    ],
+)
+
+yarn_library(
+    name = 'builtin-modules',
+    version = '1.1.1',
+)
+
+yarn_library(
+    name = 'estree-walker',
+    version = '0.5.0',
+)
+
+yarn_library(
+    name = 'expand-brackets',
+    version = '0.1.5',
+    deps = [
+        ':is-posix-bracket',
+    ],
+)
+
+yarn_library(
+    name = 'expand-range',
+    version = '1.8.2',
+    deps = [
+        ':fill-range',
+    ],
+)
+
+yarn_library(
+    name = 'extglob',
+    version = '0.3.2',
+    deps = [
+        ':is-extglob',
+    ],
+)
+
+yarn_library(
+    name = 'filename-regex',
+    version = '2.0.1',
+)
+
+yarn_library(
+    name = 'fill-range',
+    version = '2.2.3',
+    deps = [
+        ':is-number',
+        ':isobject',
+        ':randomatic',
+        ':repeat-element',
+        ':repeat-string',
+    ],
+)
+
+yarn_library(
+    name = 'for-in',
+    version = '1.0.2',
+)
+
+yarn_library(
+    name = 'for-own',
+    version = '0.1.5',
+    deps = [
+        ':for-in',
+    ],
+)
+
+yarn_library(
+    name = 'glob-base',
+    version = '0.3.0',
+    deps = [
+        ':glob-parent',
+        ':is-glob',
+    ],
+)
+
+yarn_library(
+    name = 'glob-parent',
+    version = '2.0.0',
+    deps = [
+        ':is-glob',
+    ],
+)
+
+yarn_library(
+    name = 'is-buffer',
+    version = '1.1.5',
+)
+
+yarn_library(
+    name = 'is-dotfile',
+    version = '1.0.3',
+)
+
+yarn_library(
+    name = 'is-equal-shallow',
+    version = '0.1.3',
+    deps = [
+        ':is-primitive',
+    ],
+)
+
+yarn_library(
+    name = 'is-extendable',
+    version = '0.1.1',
+)
+
+yarn_library(
+    name = 'is-extglob',
+    version = '1.0.0',
+)
+
+yarn_library(
+    name = 'is-glob',
+    version = '2.0.1',
+    deps = [
+        ':is-extglob',
+    ],
+)
+
+yarn_library(
+    name = 'is-module',
+    version = '1.0.0',
+)
+
+yarn_library(
+    name = 'is-number',
+    version = '2.1.0',
+    deps = [
+        ':kind-of',
+    ],
+)
+
+yarn_library(
+    name = 'is-posix-bracket',
+    version = '0.1.1',
+)
+
+yarn_library(
+    name = 'is-primitive',
+    version = '2.0.0',
+)
+
+yarn_library(
+    name = 'isarray',
+    version = '1.0.0',
+)
+
+yarn_library(
+    name = 'isobject',
+    version = '2.1.0',
+    deps = [
+        ':isarray',
+    ],
+)
+
+yarn_library(
+    name = 'kind-of',
+    version = '3.2.2',
+    deps = [
+        ':is-buffer',
+    ],
+)
+
+yarn_library(
+    name = 'magic-string',
+    version = '0.22.4',
+    deps = [
+        ':vlq',
+    ],
+)
+
+yarn_library(
+    name = 'micromatch',
+    version = '2.3.11',
+    deps = [
+        ':arr-diff',
+        ':array-unique',
+        ':braces',
+        ':expand-brackets',
+        ':extglob',
+        ':filename-regex',
+        ':is-extglob',
+        ':is-glob',
+        ':kind-of',
+        ':normalize-path',
+        ':object.omit',
+        ':parse-glob',
+        ':regex-cache',
+    ],
+)
+
+yarn_library(
+    name = 'normalize-path',
+    version = '2.1.1',
+    deps = [
+        ':remove-trailing-separator',
+    ],
+)
+
+yarn_library(
+    name = 'object.omit',
+    version = '2.0.1',
+    deps = [
+        ':for-own',
+        ':is-extendable',
+    ],
+)
+
+yarn_library(
+    name = 'parse-glob',
+    version = '3.0.4',
+    deps = [
+        ':glob-base',
+        ':is-dotfile',
+        ':is-extglob',
+        ':is-glob',
+    ],
+)
+
+yarn_library(
+    name = 'path-parse',
+    version = '1.0.5',
+)
+
+yarn_library(
+    name = 'preserve',
+    version = '0.2.0',
+)
+
+yarn_library(
+    name = 'randomatic',
+    version = '1.1.7',
+    deps = [
+        ':is-number',
+        ':kind-of',
+        ':is-number',
+        ':kind-of',
+    ],
+)
+
+yarn_library(
+    name = 'regex-cache',
+    version = '0.4.4',
+    deps = [
+        ':is-equal-shallow',
+    ],
+)
+
+yarn_library(
+    name = 'remove-trailing-separator',
+    version = '1.1.0',
+)
+
+yarn_library(
+    name = 'repeat-element',
+    version = '1.1.2',
+)
+
+yarn_library(
+    name = 'repeat-string',
+    version = '1.6.1',
+)
+
+yarn_library(
+    name = 'resolve',
+    version = '1.4.0',
+    deps = [
+        ':path-parse',
+    ],
+)
+
+yarn_library(
+    name = 'rollup',
+    version = '0.50.0',
+)
+
+yarn_library(
+    name = 'rollup-plugin-commonjs',
+    version = '8.2.1',
+    deps = [
+        ':acorn',
+        ':estree-walker',
+        ':magic-string',
+        ':resolve',
+        ':rollup-pluginutils',
+    ],
+)
+
+yarn_library(
+    name = 'rollup-plugin-node-resolve',
+    version = '3.0.0',
+    deps = [
+        ':browser-resolve',
+        ':builtin-modules',
+        ':is-module',
+        ':resolve',
+    ],
+)
+
+yarn_library(
+    name = 'rollup-pluginutils',
+    version = '2.0.1',
+    deps = [
+        ':estree-walker',
+        ':micromatch',
+        ':estree-walker',
+    ],
+)
+
+yarn_library(
+    name = 'vlq',
+    version = '0.2.2',
+)

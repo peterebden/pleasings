@@ -20,14 +20,14 @@ def js_library(name, srcs, test_only=False, visibility=None, deps=None):
     )
 
 
-def js_binary(name, srcs, out=None, bundles=None, visibility=None, deps=None):
+def js_binary(name, srcs, out=None, visibility=None, deps=None):
     """Defines a Javascript binary rule.
 
     This uses Webpack to collect all the dependencies and pack them into
     a single output.
 
     Many TODOs remain:
-      - plugins
+      - bundles
       - incrementality
       - persistent workers
       - hot reloading?
@@ -37,41 +37,15 @@ def js_binary(name, srcs, out=None, bundles=None, visibility=None, deps=None):
       name (str): Name of the rule.
       srcs (list): Source .js files. These are all treated as entry points.
       out (str): Name of the output file. Defaults to `name.js`.
-      bundles (list): List of vendor bundles (typically `js_bundle` rules).
       visibility (list): Visibility specification.
       deps (list): Any dependencies.
     """
-    return _webpack_rule(
-        name = name,
-        srcs = srcs,
-        out = out,
-        bundles = bundles,
-        visibility = visibility,
-        deps = deps,
-    )
-
-
-def node_binary(name, srcs, out=None, visibility=None, deps=None):
-    """Similar to js_binary but the output is binary and prefixed with a Node shebang.
-
-    TODO(peter): Should we have better support for using this in the same package as
-                 js_binary, since they effectively require different webpack configs?
-
-    Args:
-      name (str): Name of the rule.
-      srcs (list): Source .js files. These are all treated as entry points.
-      out (str): Name of the output file. Defaults to `name.js`.
-      visibility (list): Visibility specification.
-      deps (list): Any dependencies.
-    """
-    return _webpack_rule(
+    return _rollup_rule(
         name = name,
         srcs = srcs,
         out = out,
         visibility = visibility,
         deps = deps,
-        binary = True,
-        shebang = '#!/usr/bin/env node',
     )
 
 
@@ -184,7 +158,36 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=Fals
     )
 
 
+def _rollup_rule(name, srcs, out=None, manifest=None, visibility=None, deps=None):
+    """Internal function for the various webpack-calling rules above."""
+    if not CONFIG.ROLLUP_TOOL:
+        raise ParseError('You must set rollup-tool in the [buildconfig] section of '
+                         'your .plzconfig file to use js_binary rules')
+
+    out = out or name + '.js'
+    return build_rule(
+        name = name,
+        srcs = srcs,
+        outs = {
+            'js': [out],
+            'map': [out + '.map'],
+        },
+        cmd = '$TOOLS_NODE $TOOLS_ROLLUP',
+        tools = {
+            'node': [CONFIG.NODE_TOOL],
+            'rollup': [CONFIG.ROLLUP_TOOL],
+        },
+        requires = ['js'],
+        visibility = visibility,
+        deps = deps,
+        needs_transitive_deps = True,
+        output_is_complete = True,
+        binary = True,
+    )
+
+
 # Set these so others can override them using package()
 CONFIG.setdefault('NODE_TOOL', 'node')
 CONFIG.setdefault('NODE_PATH', '$TMP_DIR:$TMP_DIR/third_party/js')
 CONFIG.setdefault('WEBPACK_TOOL', '//third_party/js:webpack')
+CONFIG.setdefault('ROLLUP_TOOL', '')
