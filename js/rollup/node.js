@@ -1,5 +1,5 @@
 const rollup = require('rollup');
-require('./node.config');
+const config = require('./node.config');
 
 
 async function build() {

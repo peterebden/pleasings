@@ -86,6 +86,90 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'babel-helper-call-delegate',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-hoist-variables',
+        ':babel-runtime',
+        ':babel-traverse',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-helper-define-map',
+    version = '6.26.0',
+    deps = [
+        ':babel-helper-function-name',
+        ':babel-runtime',
+        ':babel-types',
+        ':lodash',
+    ],
+)
+
+yarn_library(
+    name = 'babel-helper-function-name',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-get-function-arity',
+        ':babel-runtime',
+        ':babel-template',
+        ':babel-traverse',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-helper-get-function-arity',
+    version = '6.24.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-helper-hoist-variables',
+    version = '6.24.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-helper-optimise-call-expression',
+    version = '6.24.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-helper-regex',
+    version = '6.26.0',
+    deps = [
+        ':babel-runtime',
+        ':babel-types',
+        ':lodash',
+    ],
+)
+
+yarn_library(
+    name = 'babel-helper-replace-supers',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-optimise-call-expression',
+        ':babel-messages',
+        ':babel-runtime',
+        ':babel-template',
+        ':babel-traverse',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
     name = 'babel-helpers',
     version = '6.24.1',
     deps = [
@@ -99,6 +183,292 @@ yarn_library(
     version = '6.23.0',
     deps = [
         ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-check-es2015-constants',
+    version = '6.22.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-external-helpers',
+    version = '6.22.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-arrow-functions',
+    version = '6.22.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-block-scoped-functions',
+    version = '6.22.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-block-scoping',
+    version = '6.26.0',
+    deps = [
+        ':babel-runtime',
+        ':babel-template',
+        ':babel-traverse',
+        ':babel-types',
+        ':lodash',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-classes',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-define-map',
+        ':babel-helper-function-name',
+        ':babel-helper-optimise-call-expression',
+        ':babel-helper-replace-supers',
+        ':babel-messages',
+        ':babel-runtime',
+        ':babel-template',
+        ':babel-traverse',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-computed-properties',
+    version = '6.24.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-template',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-destructuring',
+    version = '6.23.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-duplicate-keys',
+    version = '6.24.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-for-of',
+    version = '6.23.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-function-name',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-function-name',
+        ':babel-runtime',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-literals',
+    version = '6.22.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-modules-amd',
+    version = '6.24.1',
+    deps = [
+        ':babel-plugin-transform-es2015-modules-commonjs',
+        ':babel-runtime',
+        ':babel-template',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-modules-commonjs',
+    version = '6.26.0',
+    deps = [
+        ':babel-plugin-transform-strict-mode',
+        ':babel-runtime',
+        ':babel-template',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-modules-systemjs',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-hoist-variables',
+        ':babel-runtime',
+        ':babel-template',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-modules-umd',
+    version = '6.24.1',
+    deps = [
+        ':babel-plugin-transform-es2015-modules-amd',
+        ':babel-runtime',
+        ':babel-template',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-object-super',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-replace-supers',
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-parameters',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-call-delegate',
+        ':babel-helper-get-function-arity',
+        ':babel-runtime',
+        ':babel-template',
+        ':babel-traverse',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-shorthand-properties',
+    version = '6.24.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-spread',
+    version = '6.22.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-sticky-regex',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-regex',
+        ':babel-runtime',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-template-literals',
+    version = '6.22.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-typeof-symbol',
+    version = '6.23.0',
+    deps = [
+        ':babel-runtime',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-es2015-unicode-regex',
+    version = '6.24.1',
+    deps = [
+        ':babel-helper-regex',
+        ':babel-runtime',
+        ':regexpu-core',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-regenerator',
+    version = '6.26.0',
+    deps = [
+        ':regenerator-transform',
+    ],
+)
+
+yarn_library(
+    name = 'babel-plugin-transform-strict-mode',
+    version = '6.24.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-types',
+    ],
+)
+
+yarn_library(
+    name = 'babel-preset-es2015',
+    version = '6.24.1',
+    deps = [
+        ':babel-plugin-check-es2015-constants',
+        ':babel-plugin-transform-es2015-arrow-functions',
+        ':babel-plugin-transform-es2015-block-scoped-functions',
+        ':babel-plugin-transform-es2015-block-scoping',
+        ':babel-plugin-transform-es2015-classes',
+        ':babel-plugin-transform-es2015-computed-properties',
+        ':babel-plugin-transform-es2015-destructuring',
+        ':babel-plugin-transform-es2015-duplicate-keys',
+        ':babel-plugin-transform-es2015-for-of',
+        ':babel-plugin-transform-es2015-function-name',
+        ':babel-plugin-transform-es2015-literals',
+        ':babel-plugin-transform-es2015-modules-amd',
+        ':babel-plugin-transform-es2015-modules-commonjs',
+        ':babel-plugin-transform-es2015-modules-systemjs',
+        ':babel-plugin-transform-es2015-modules-umd',
+        ':babel-plugin-transform-es2015-object-super',
+        ':babel-plugin-transform-es2015-parameters',
+        ':babel-plugin-transform-es2015-shorthand-properties',
+        ':babel-plugin-transform-es2015-spread',
+        ':babel-plugin-transform-es2015-sticky-regex',
+        ':babel-plugin-transform-es2015-template-literals',
+        ':babel-plugin-transform-es2015-typeof-symbol',
+        ':babel-plugin-transform-es2015-unicode-regex',
+        ':babel-plugin-transform-regenerator',
+    ],
+)
+
+yarn_library(
+    name = 'babel-preset-es2015-rollup',
+    version = '3.0.0',
+    deps = [
+        ':babel-plugin-external-helpers',
+        ':babel-preset-es2015',
+        ':require-relative',
     ],
 )
 
@@ -607,8 +977,23 @@ yarn_library(
 )
 
 yarn_library(
+    name = 'regenerate',
+    version = '1.3.3',
+)
+
+yarn_library(
     name = 'regenerator-runtime',
     version = '0.11.0',
+)
+
+yarn_library(
+    name = 'regenerator-transform',
+    version = '0.10.1',
+    deps = [
+        ':babel-runtime',
+        ':babel-types',
+        ':private',
+    ],
 )
 
 yarn_library(
@@ -616,6 +1001,29 @@ yarn_library(
     version = '0.4.4',
     deps = [
         ':is-equal-shallow',
+    ],
+)
+
+yarn_library(
+    name = 'regexpu-core',
+    version = '2.0.0',
+    deps = [
+        ':regenerate',
+        ':regjsgen',
+        ':regjsparser',
+    ],
+)
+
+yarn_library(
+    name = 'regjsgen',
+    version = '0.2.0',
+)
+
+yarn_library(
+    name = 'regjsparser',
+    version = '0.1.5',
+    deps = [
+        ':jsesc',
     ],
 )
 
@@ -640,6 +1048,11 @@ yarn_library(
     deps = [
         ':is-finite',
     ],
+)
+
+yarn_library(
+    name = 'require-relative',
+    version = '0.8.7',
 )
 
 yarn_library(
