@@ -39,7 +39,6 @@ yarn_library(
     version = '1.11.2',
     deps = [
         ':resolve',
-        ':resolve',
     ],
 )
 
@@ -167,7 +166,7 @@ yarn_library(
 
 yarn_library(
     name = 'is-number',
-    version = '2.1.0',
+    version = '3.0.0',
     deps = [
         ':kind-of',
     ],
@@ -198,7 +197,7 @@ yarn_library(
 
 yarn_library(
     name = 'kind-of',
-    version = '3.2.2',
+    version = '4.0.0',
     deps = [
         ':is-buffer',
     ],
@@ -276,8 +275,6 @@ yarn_library(
     deps = [
         ':is-number',
         ':kind-of',
-        ':is-number',
-        ':kind-of',
     ],
 )
 
@@ -346,7 +343,6 @@ yarn_library(
     deps = [
         ':estree-walker',
         ':micromatch',
-        ':estree-walker',
     ],
 )
 
