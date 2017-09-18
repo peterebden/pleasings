@@ -201,7 +201,7 @@ def build_rollup(name, main, config, rollup, visibility=None, deps=None):
     cmd = ' && '.join([
         'mv $(dir %s) node_modules' % rollup,
         'export NODE_PATH="./node_modules"',
-        '$TOOL node_modules/rollup/bin/rollup --config $SRCS_CONFIG $SRCS_MAIN',
+        '$TOOL node_modules/rollup/bin/rollup --config $SRCS_CONFIG $SRCS_MAIN -o $OUT',
     ])
     deps = deps or []
     return build_rule(
