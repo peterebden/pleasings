@@ -197,6 +197,11 @@ def build_rollup(name, main, config, rollup, visibility=None, deps=None):
       visibility (list): Visibility specification.
       deps (list): Any dependencies.
     """
+    cmd = ' && '.join([
+        'mv $(dir %s) node_modules' % rollup,
+        'export NODE_PATH="./node_modules"',
+        '$TOOL node_modules/rollup/bin/rollup --config $SRCS_CONFIG $SRCS_MAIN',
+    ])
     deps = deps or []
     return build_rule(
         name = name,
@@ -206,8 +211,7 @@ def build_rollup(name, main, config, rollup, visibility=None, deps=None):
         },
         outs = {'js': [name + '.js']},
         tools = [CONFIG.NODE_TOOL],
-        cmd = 'export NODE_PATH=%s:$(dir %s); $TOOL $(location %s)/bin/rollup --config $SRCS_CONFIG $SRCS_MAIN' %
-            (CONFIG.NODE_PATH, rollup, rollup),
+        cmd = cmd,
         deps = deps + [rollup],
         requires = ['js'],
         visibility = visibility,
