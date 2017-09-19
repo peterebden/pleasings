@@ -1,3 +1,5 @@
+package(javac_tool = 'javac')
+
 java_library(
     name = 'lib',
     srcs = glob(['build/please/js/*.java']),
