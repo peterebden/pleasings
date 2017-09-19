@@ -1,12 +1,6 @@
 subinclude('//js:yarn')
 package(default_visibility = ['PUBLIC'])
 
-remote_file(
-    name = 'jsx_transformer',
-    url = 'https://unpkg.com/react@0.13.3/dist/JSXTransformer.js',
-    hashes = ['bc80f5c68aa15e8b99a2e120b37b9121377003e4'],
-)
-
 yarn_library(
     name = 'abbrev',
     version = '1.1.0',

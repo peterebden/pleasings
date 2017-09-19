@@ -16,3 +16,10 @@ maven_jars(
     id = 'io.grpc:grpc-all:1.1.2',
     deps = [':protobuf'],
 )
+
+maven_jar(
+    name = 'junit',
+    id = 'junit:junit:4.12',
+    hash = 'sha1: a791201ac8a3d2a251045a52e264de01343ad2df',
+    test_only = True,
+)
