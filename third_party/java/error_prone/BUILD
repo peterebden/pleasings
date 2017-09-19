@@ -2,9 +2,8 @@ package(default_visibility = ['PUBLIC'])
 
 maven_jars(
     name = 'error_prone',
-    id = 'com.google.errorprone:error_prone_core:2.0.14',
+    id = 'com.google.errorprone:error_prone_core:2.1.1',
     exclude = [
-        'guava',
         'error_prone_annotations',
     ],
 )
