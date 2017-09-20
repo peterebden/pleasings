@@ -1,12 +1,11 @@
-def js_library(name, srcs, out=None, test_only=False, visibility=None, deps=None):
+def js_library(name, srcs, out=None, jsx=False, test_only=False, visibility=None, deps=None):
     """Defines a Javascript library rule.
-
-    For now this is just a placeholder.
 
     Args:
       name (str): Name of the rule.
       srcs (str): Source .js files.
       out (str): Name of the output file. Defaults to `name.js`.
+      jsx (bool): True to pass the source through JSX transpilation first.
       test_only (bool): If True, can only be depended on by test rules.
       visibility (list): Visibility specification.
       deps (list): Any dependencies.
@@ -15,6 +14,9 @@ def js_library(name, srcs, out=None, test_only=False, visibility=None, deps=None
         raise ParseError('You must set closure-compiler in the [buildconfig] '
                          'section of your .plzconfig to use js_library rules')
     out = out or name + '.js'
+    cmd = '$TOOL --in=%s --out=%s -O=%s' % (CONFIG.CLOSURE_IN_LANGUAGE, CONFIG.CLOSURE_OUT_LANGUAGE, CONFIG.CLOSURE_OPTIMISATION_LEVEL)
+    if jsx:
+        cmd += ' --jsx'
     return build_rule(
         name = name,
         srcs = {
@@ -24,7 +26,30 @@ def js_library(name, srcs, out=None, test_only=False, visibility=None, deps=None
             'js': [out],
         },
         tools = [CONFIG.CLOSURE_COMPILER],
-        cmd = '$TOOL --in=%s --out=%s -O=%s' % (CONFIG.CLOSURE_IN_LANGUAGE, CONFIG.CLOSURE_OUT_LANGUAGE, CONFIG.CLOSURE_OPTIMISATION_LEVEL),
+        cmd = cmd,
+    )
+
+
+def jsx_library(name, srcs, out=None, test_only=False, visibility=None, deps=None):
+    """Defines a Javascript library rule that uses JSX.
+
+    This is essentially just a passthrough to js_library.
+
+    Args:
+      name (str): Name of the rule.
+      srcs (str): Source .js files.
+      out (str): Name of the output file. Defaults to `name.js`.
+      test_only (bool): If True, can only be depended on by test rules.
+      visibility (list): Visibility specification.
+      deps (list): Any dependencies.
+    """
+    return js_library(
+        name = name,
+        srcs = srcs,
+        out = out,
+        test_only = test_only,
+        visibility = visibility,
+        deps = deps,
     )
 
 

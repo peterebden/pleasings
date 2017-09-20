@@ -1,9 +1,17 @@
 subinclude('//js')
 
+# These rules are broken up more than is necessary to illustrate how the different
+# libraries work together.
 js_library(
+    name = 'winner',
+    srcs = ['winner.js'],
+)
+
+jsx_library(
     name = 'game',
     srcs = ['game.js'],
     deps = [
+        ':winner',
         '//third_party/js:react',
     ],
 )
