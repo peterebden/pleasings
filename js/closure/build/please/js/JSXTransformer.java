@@ -12,7 +12,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 
-public class JSXTransformer {
+class JSXTransformer {
     private static final String JSX_TRANSFORMER = "/JSXTransformer.js";
 
     private Context ctx;
