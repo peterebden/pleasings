@@ -29,8 +29,13 @@ class Main {
         } else {
             result = compiler.compile(srcs);
         }
-        // N.B. next line throws if result wasn't successful.
-        Files.write(Paths.get(out), compiler.toSource(result).getBytes(StandardCharsets.UTF_8));
+        String source = null;
+        try {
+            compiler.toSource(result);
+        } catch (Exception ex) {
+            System.exit(1);  // Exception has already been reported.
+        }
+        Files.write(Paths.get(out), source.getBytes(StandardCharsets.UTF_8));
     }
 
 }
