@@ -1,4 +1,4 @@
-def js_library(name, srcs, test_only=False, visibility=None, deps=None):
+def js_library(name, srcs, out=None, test_only=False, visibility=None, deps=None):
     """Defines a Javascript library rule.
 
     For now this is just a placeholder.
@@ -6,17 +6,25 @@ def js_library(name, srcs, test_only=False, visibility=None, deps=None):
     Args:
       name (str): Name of the rule.
       srcs (str): Source .js files.
+      out (str): Name of the output file. Defaults to `name.js`.
       test_only (bool): If True, can only be depended on by test rules.
       visibility (list): Visibility specification.
       deps (list): Any dependencies.
     """
-    return filegroup(
+    if not CONFIG.CLOSURE_COMPILER:
+        raise ParseError('You must set closure-compiler in the [buildconfig] '
+                         'section of your .plzconfig to use js_library rules')
+    out = out or name + '.js'
+    return build_rule(
         name = name,
-        srcs = srcs,
-        test_only = test_only,
-        requires = ['js'],
-        visibility = visibility,
-        deps = deps,
+        srcs = {
+            'js': srcs,
+        },
+        outs = {
+            'js': [out],
+        },
+        tools = [CONFIG.CLOSURE_COMPILER],
+        cmd = '$TOOL --in=%s --out=%s -O=%s' % (CONFIG.CLOSURE_IN_LANGUAGE, CONFIG.CLOSURE_OUT_LANGUAGE, CONFIG.CLOSURE_OPTIMISATION_LEVEL),
     )
 
 
@@ -40,12 +48,20 @@ def js_binary(name, srcs, out=None, visibility=None, deps=None):
       visibility (list): Visibility specification.
       deps (list): Any dependencies.
     """
-    return _rollup_rule(
+    if not CONFIG.CLOSURE_COMPILER:
+        raise ParseError('You must set closure-compiler in the [buildconfig] '
+                         'section of your .plzconfig to use js_binary rules')
+    out = out or name + '.js'
+    return build_rule(
         name = name,
-        srcs = srcs,
-        out = out,
-        visibility = visibility,
-        deps = deps,
+        srcs = {
+            'js': srcs,
+        },
+        outs = {
+            'js': [out],
+        },
+        tools = [CONFIG.CLOSURE_COMPILER],
+        cmd = '$TOOL ',
     )
 
 
@@ -227,3 +243,7 @@ CONFIG.setdefault('NODE_TOOL', 'node')
 CONFIG.setdefault('NODE_PATH', '$TMP_DIR:$TMP_DIR/third_party/js')
 CONFIG.setdefault('WEBPACK_TOOL', '//third_party/js:webpack')
 CONFIG.setdefault('ROLLUP_TOOL', '')
+CONFIG.setdefault('CLOSURE_COMPILER', '')
+CONFIG.setdefault('CLOSURE_IN_LANGUAGE', 'ES_2015')
+CONFIG.setdefault('CLOSURE_OUT_LANGUAGE', 'ES5')
+CONFIG.setdefault('CLOSURE_OPTIMISATION_LEVEL', 'SIMPLE')

@@ -1,12 +1,20 @@
 subinclude('//js')
 
-# TODO(peterebden): break this into a library + binary to illustrate
-#                   importing one from another.
+js_library(
+    name = 'game',
+    srcs = ['game.js'],
+    deps = [
+        '//third_party/js:react',
+    ],
+)
+
 js_binary(
     name = 'js',
-    srcs = ['game.js'],
+    srcs = ['main.js'],
     out = 'game.js',
-    bundles = [':vendor'],
+    deps = [
+        '//third_party/js:react-dom',
+    ],
 )
 
 js_bundle(
@@ -18,7 +26,7 @@ js_bundle(
 )
 
 filegroup(
-    name = 'game',
+    name = 'example',
     srcs = [
         'game.css',
         'game.html',
