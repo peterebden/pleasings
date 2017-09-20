@@ -16,6 +16,8 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 class JSXTransformer {
     private static final String JSX_TRANSFORMER = "/JSXTransformer.js";
@@ -24,8 +26,12 @@ class JSXTransformer {
     private Scriptable exports;
     private Scriptable scope;
     private Function transform;
+    private Map options;
 
     public JSXTransformer() {
+        options = new HashMap<String, Boolean>();
+        options.put("nonStrictEs6Module", true);
+
         ctx = Context.enter();
         try {
             scope = ctx.initStandardObjects();
@@ -47,7 +53,7 @@ class JSXTransformer {
     public String transform(String jsx) {
         Context.enter();
         try {
-            NativeObject result = (NativeObject) transform.call(ctx, scope, exports, new String[]{jsx});
+            NativeObject result = (NativeObject) transform.call(ctx, scope, exports, new Object[]{ jsx, options });
             return result.get("code").toString();
         } finally {
             Context.exit();

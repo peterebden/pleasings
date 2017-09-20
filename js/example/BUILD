@@ -2,7 +2,7 @@ subinclude('//js')
 
 # These rules are broken up more than is necessary to illustrate how the different
 # libraries work together.
-js_library(
+jsx_library(
     name = 'winner',
     srcs = ['winner.js'],
 )
