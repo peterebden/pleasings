@@ -31,7 +31,7 @@ class Main {
         }
         String source = null;
         try {
-            compiler.toSource(result);
+            source = compiler.toSource(result);
         } catch (Exception ex) {
             System.exit(1);  // Exception has already been reported.
         }

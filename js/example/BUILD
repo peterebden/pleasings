@@ -21,6 +21,7 @@ js_binary(
     srcs = ['main.js'],
     out = 'game.js',
     deps = [
+        ':game',
         '//third_party/js:react-dom',
     ],
 )

@@ -1,32 +1,21 @@
-def js_library(name, srcs, out=None, jsx=False, test_only=False, visibility=None, deps=None):
+def js_library(name, srcs, out=None, test_only=False, visibility=None, deps=None):
     """Defines a Javascript library rule.
 
     Args:
       name (str): Name of the rule.
       srcs (str): Source .js files.
       out (str): Name of the output file. Defaults to `name.js`.
-      jsx (bool): True to pass the source through JSX transpilation first.
       test_only (bool): If True, can only be depended on by test rules.
       visibility (list): Visibility specification.
       deps (list): Any dependencies.
     """
-    if not CONFIG.CLOSURE_COMPILER:
-        raise ParseError('You must set closure-compiler in the [buildconfig] '
-                         'section of your .plzconfig to use js_library rules')
-    out = out or name + '.js'
-    cmd = '$TOOL --in=%s --out=%s -O=%s' % (CONFIG.CLOSURE_IN_LANGUAGE, CONFIG.CLOSURE_OUT_LANGUAGE, CONFIG.CLOSURE_OPTIMISATION_LEVEL)
-    if jsx:
-        cmd += ' --jsx'
-    return build_rule(
+    return _closure_rule(
         name = name,
-        srcs = {
-            'js': srcs,
-        },
-        outs = {
-            'js': [out],
-        },
-        tools = [CONFIG.CLOSURE_COMPILER],
-        cmd = cmd,
+        srcs = srcs,
+        out = out,
+        test_only = test_only,
+        visibility = visibility,
+        deps = deps,
     )
 
 
@@ -43,10 +32,11 @@ def jsx_library(name, srcs, out=None, test_only=False, visibility=None, deps=Non
       visibility (list): Visibility specification.
       deps (list): Any dependencies.
     """
-    return js_library(
+    return _closure_rule(
         name = name,
         srcs = srcs,
         out = out,
+        jsx = True,
         test_only = test_only,
         visibility = visibility,
         deps = deps,
@@ -56,7 +46,7 @@ def jsx_library(name, srcs, out=None, test_only=False, visibility=None, deps=Non
 def js_binary(name, srcs, out=None, visibility=None, deps=None):
     """Defines a Javascript binary rule.
 
-    This uses Webpack to collect all the dependencies and pack them into
+    This uses Closure to collect all the dependencies and pack them into
     a single output.
 
     Many TODOs remain:
@@ -73,20 +63,34 @@ def js_binary(name, srcs, out=None, visibility=None, deps=None):
       visibility (list): Visibility specification.
       deps (list): Any dependencies.
     """
-    if not CONFIG.CLOSURE_COMPILER:
-        raise ParseError('You must set closure-compiler in the [buildconfig] '
-                         'section of your .plzconfig to use js_binary rules')
-    out = out or name + '.js'
-    return build_rule(
+    return _closure_rule(
         name = name,
-        srcs = {
-            'js': srcs,
-        },
-        outs = {
-            'js': [out],
-        },
-        tools = [CONFIG.CLOSURE_COMPILER],
-        cmd = '$TOOL ',
+        srcs = srcs,
+        out = out,
+        visibility = visibility,
+        deps = deps,
+    )
+
+
+def js_binary(name, srcs, out=None, visibility=None, deps=None):
+    """Defines a Javascript binary rule which uses JSX.
+
+    This is essentially the same as js_binary except that it adds the JSX pass.
+
+    Args:
+      name (str): Name of the rule.
+      srcs (list): Source .js files. These are all treated as entry points.
+      out (str): Name of the output file. Defaults to `name.js`.
+      visibility (list): Visibility specification.
+      deps (list): Any dependencies.
+    """
+    return _closure_rule(
+        name = name,
+        srcs = srcs,
+        out = out,
+        jsx = True,
+        visibility = visibility,
+        deps = deps,
     )
 
 
@@ -260,6 +264,30 @@ def build_rollup(name, main, config, rollup, visibility=None, deps=None):
         binary = True,
         needs_transitive_deps = True,
         output_is_complete = True,
+    )
+
+def _closure_rule(name, srcs, out, jsx=False, test_only=False, visibility=None, deps=None):
+    """Internal function for the Closure-calling functions above."""
+    if not CONFIG.CLOSURE_COMPILER:
+        raise ParseError('You must set closure-compiler in the [buildconfig] '
+                         'section of your .plzconfig to use these Javascript rules')
+    cmd = '$TOOL --in=%s --out=%s -O=%s' % (CONFIG.CLOSURE_IN_LANGUAGE, CONFIG.CLOSURE_OUT_LANGUAGE, CONFIG.CLOSURE_OPTIMISATION_LEVEL)
+    if jsx:
+        cmd += ' --jsx'
+    out = out or name + '.js'
+    return build_rule(
+        name = name,
+        srcs = {
+            'js': srcs,
+        },
+        outs = {
+            'js': [out],
+        },
+        tools = [CONFIG.CLOSURE_COMPILER],
+        cmd = cmd,
+        test_only = test_only,
+        visibility = visibility,
+        deps = deps,
     )
 
 
