@@ -11,6 +11,11 @@ import org.mozilla.javascript.Scriptable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 class JSXTransformer {
     private static final String JSX_TRANSFORMER = "/JSXTransformer.js";
@@ -47,6 +52,15 @@ class JSXTransformer {
         } finally {
             Context.exit();
         }
+    }
+
+    public List<String> readAndTransformAll(List<String> filenames) throws IOException {
+        List<String> transformed = new ArrayList<>(filenames.size());
+        for (String filename : filenames) {
+            String contents = new String(Files.readAllBytes(Paths.get(filename)), StandardCharsets.UTF_8);
+            transformed.add(transform(contents));
+        }
+        return transformed;
     }
 
     private Object get(Scriptable scope, String id) {

@@ -1,4 +1,6 @@
 java_binary(
     name = 'compiler',
-    deps = ['//js/closure/build/please/js:jsx_transformer'],
+    deps = ['//js/closure/build/please/js:compiler'],
+    main_class = 'build.please.js.Main',
+    self_executable = True,
 )

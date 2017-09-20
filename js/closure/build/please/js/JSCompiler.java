@@ -90,6 +90,8 @@ class JSCompiler {
                 options.setLanguageOut(toLanguageMode(opt.substring(6)));
             } else if (opt.startsWith("-O")) {
                 CompilationLevel.fromString(opt.substring(3)).setOptionsForCompilationLevel(options);
+            } else if (opt.equals("--jsx")) {
+                // Do nothing, is handled elsewhere.
             } else {
                 throw new IllegalArgumentException("Unknown option " + opt);
             }
