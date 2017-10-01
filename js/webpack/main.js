@@ -35,7 +35,7 @@ const worker = new Worker(function(params) {
     return ['stuffed'];
 });
 worker.run();
-
+/*
 const srcs = (process.env.SRCS_JS || process.env.SRCS).split(' ');
 const out = process.env.OUTS_JS || 'dummy.js';
 const compiler = webpack(WebPackConfig({
@@ -67,3 +67,4 @@ if (process.env.LIB) {
 }
 
 compiler.run(handleResults);
+*/

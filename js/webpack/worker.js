@@ -17,7 +17,30 @@ class Worker {
 	this.callback = callback;
     }
 
+    // Runs the worker, reading from stdin and writing results to stdout.
     run() {
+	process.stdin.resume();
+process.stdin.on('readable', () => {
+  const chunk = process.stdin.read();
+  if (chunk !== null) {
+    process.stderr.write(`data: ${chunk}`);
+  }
+});
+	process.stdin.on('data', chunk => {
+	    console.error('Received %d bytes of data', chunk.length);
+	    fs.writeFile('/tmp/worker', chunk, err => {
+		console.error(err);
+	    });
+	    return;
+
+	});
+	console.error('here');
+
+	process.stdin.on('end', () => {
+	    // We are done, plz has probably gone away. Die gracefully.
+	    process.exit(0);
+	});
+
 	const fd = process.stdin.fd;
 	const sizeBuf = Buffer.allocUnsafe(4);
 	// Continually read stdin to consume requests.
