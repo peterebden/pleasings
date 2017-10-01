@@ -18,6 +18,7 @@ rust-toolchain = //third_party/rust:toolchain
 [proto]
 protocgoplugin = //third_party/go:protoc-gen-go
 grpcjavaplugin = //third_party/java:protoc-gen-grpc-java
+jsdep = //third_party/js/webpack:google-protobuf
 
 [python]
 moduledir = third_party.python

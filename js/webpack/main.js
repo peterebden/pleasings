@@ -2,6 +2,7 @@ const process = require('process');
 const webpack = require('webpack');
 const Stats = require('webpack/lib/Stats');
 const WebPackConfig = require('./config.js');
+const Worker = require('./worker.js');
 
 // Prints results after compilation completes.
 // Function never returns, the process exits with an appropriate error code.
@@ -29,6 +30,12 @@ const handleErrors = function(err) {
     }
 };
 
+const worker = new Worker(function(params) {
+    console.log('Received compile request for %s', JSON.stringify(params));
+    return ['stuffed'];
+});
+worker.run();
+
 const srcs = (process.env.SRCS_JS || process.env.SRCS).split(' ');
 const out = process.env.OUTS_JS || 'dummy.js';
 const compiler = webpack(WebPackConfig({
@@ -43,7 +50,6 @@ const compiler = webpack(WebPackConfig({
 }));
 
 // Very temporary solution to try out incremental compilation.
-// https://stackoverflow.com/questions/38276028/webpack-child-compiler-change-configuration
 if (process.env.LIB) {
     compiler.plugin('make', (compilation, callback) => {
 	srcs.forEach((src, i) => {

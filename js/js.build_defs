@@ -18,7 +18,7 @@ def js_library(name, srcs, test_only=False, visibility=None, deps=None):
             'node': [CONFIG.NODE_TOOL],
             'webpack': [CONFIG.WEBPACK_TOOL],
         },
-        cmd = 'LIB=1 $TOOLS_NODE $TOOLS_WEBPACK',
+        cmd = '$(worker %s)' % CONFIG.WEBPACK_TOOL,
         test_only = test_only,
         requires = ['js'],
         visibility = visibility,
@@ -77,7 +77,6 @@ def node_binary(name, srcs, out=None, visibility=None, deps=None):
         visibility = visibility,
         deps = deps,
         binary = True,
-        shebang = '#!/usr/bin/env node',
     )
 
 
@@ -108,7 +107,7 @@ def js_bundle(name, srcs, out=None, visibility=None, deps=None):
     )
 
 
-def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=False, shebang='',
+def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=False,
                   output_is_complete=True, visibility=None, deps=None, requires=None, provides=None):
     """Internal function for the various webpack-calling rules above."""
 
@@ -120,10 +119,6 @@ def _webpack_rule(name, srcs, bundles=None, out=None, manifest=None, binary=Fals
 
     # Must make Webpack's 'buildin' directory available.
     cmd = '$TOOLS_NODE $TOOLS_WEBPACK'
-    if binary:
-        # TODO(peter): can we handle this inside Webpack somehow rather than this inelegant copy & cat?
-        cmd += ' && mv $OUTS_JS _tmp.js && echo "%s" > $OUTS_JS && cat _tmp.js >> $OUTS_JS' % shebang
-
     return build_rule(
         name = name,
         srcs = {
@@ -185,7 +180,9 @@ def webpack_bundle(name, main, config, webpack, srcs=None, build_config=None,
             'build': [build_config],
             'other': srcs,
         },
+        binary = True,
         outs = ['webpack.js'],
+        requires = ['js'],
         tools = {'node': [CONFIG.NODE_TOOL], 'buildin': [buildin_rule]},
         cmd = 'export NODE_PATH=".:$(dir %s)"; $TOOLS_NODE $(location %s)/bin/webpack.js --config $SRCS_BUILD' % (webpack, webpack),
         building_description = 'Bundling...',

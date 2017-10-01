@@ -3,6 +3,7 @@ const path = require('path');
 const process = require('process');
 const requireDynamic = require('./require_dynamic.js');
 const FileReplacePlugin = require("replace-in-file-webpack-plugin");
+const webpack = require('webpack');
 
 module.exports = {
     entry: process.env.SRCS_MAIN.split(' ').map(src => './' + src),
@@ -22,6 +23,7 @@ module.exports = {
                 replace: (match, p1) => '"' + p1 + '"',
             }]
         }]),
+	new webpack.BannerPlugin({banner: `#!${process.env.TOOLS_NODE}`, raw: true}),
     ],
     node: {
 	__dirname: true,
@@ -36,9 +38,9 @@ module.exports = {
         filename: path.basename(process.env.OUT),
     },
     resolve: {
-	modules: process.env.NODE_PATH.split(':'),
+	modules: ['./', './third_party/js/webpack'],
     },
     resolveLoader: {
-	modules: process.env.NODE_PATH.split(':'),
+	modules: ['./', './third_party/js/webpack'],
     },
 };

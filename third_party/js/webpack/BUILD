@@ -1,6 +1,9 @@
 subinclude('//js:yarn')
 subinclude('//js')
-package(default_visibility = ['//js/webpack:all'])
+package(default_visibility = [
+    '//js/webpack:all',
+    '//third_party/proto:all',
+])
 
 yarn_library(
     name = 'abbrev',
@@ -1610,6 +1613,11 @@ yarn_library(
 yarn_library(
     name = 'globals',
     version = '9.18.0',
+)
+
+yarn_library(
+    name = 'google-protobuf',
+    version = '3.4.0',
 )
 
 yarn_library(

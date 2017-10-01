@@ -7,6 +7,7 @@ webpack_bundle(
     srcs = [
         'plz_loader.js',
         'require_dynamic.js',
+        'worker.js',
     ],
     build_config = 'build_config.js',
     config = 'config.js',
@@ -17,8 +18,10 @@ webpack_bundle(
         '//third_party/js/webpack:babel-plugin-module-resolver',
         '//third_party/js/webpack:babel-preset-es2015',
         '//third_party/js/webpack:babel-preset-react',
+        '//third_party/js/webpack:google-protobuf',
         '//third_party/js/webpack:json-loader',
         '//third_party/js/webpack:loader-utils',
         '//third_party/js/webpack:replace-in-file-webpack-plugin',
+        '//third_party/proto:worker',
     ],
 )
