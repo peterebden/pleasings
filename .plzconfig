@@ -27,3 +27,5 @@ moduledir = third_party.python
 javacworker = //java/error_prone:javac_worker
 sourcelevel = 7
 targetlevel = 7
+defaultmavenrepo = https://repo1.maven.org/maven2
+defaultmavenrepo = https://maven.google.com

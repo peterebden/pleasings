@@ -93,11 +93,16 @@ def android_resource(name, package, manifest, res, resources_root=None, assets=N
         deps = deps,
         out = 'R.txt',
     )
-    filegroup(
+    java_rule = android_library(
+        name = '_%s#java' % name,
+        srcs = [java_src_rule],
+        deps = deps,
+    )
+    return filegroup(
         name = name,
         visibility = visibility,
         provides = {
-            'java': java_src_rule,
+            'java': java_rule,
             'res_src': ':_%s#srcs' % name,
             'manifest': ':_%s#manifest' % name,
             'res': res_rule,
