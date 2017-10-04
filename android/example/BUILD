@@ -23,3 +23,14 @@ android_library(
         '//third_party/android:javax.inject',
     ],
 )
+
+android_binary(
+    name = 'apk',
+    out = 'AsymmetricFingerprintDialog.apk',
+    #merge_manifests = merge_manifests,
+    resource_deps = [
+        '//third_party/android:appcompat-v7',
+    ],
+    resources = ':resources',
+    deps = [':lib'],
+)
