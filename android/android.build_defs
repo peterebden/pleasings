@@ -30,6 +30,8 @@ TODOs:
  - No doubt we are missing lots of other features
 """
 
+check_config('ANDROID_HOME', example='/opt/android', rule='Android')
+
 
 def android_resource(name, package, manifest, res, resources_root=None, assets=None,
                      deps=None, visibility=None):
@@ -376,6 +378,25 @@ def android_maven_jar(name, id=None, src=None, repository=None, hash=None, deps=
     )
 
 
+def android_jar(name, platform, visibility=None, deps=None):
+    """Fetches an Android platform API jar off the system.
+
+    You may need to set android-home in your .plzconfig for this to locate it correctly.
+
+    Args:
+      name (str): Name of the rule.
+      platform (str): Name of the platform version (e.g. android-23).
+      visibility (list): Visibility declaration.
+      deps (list): Extra dependencies.
+    """
+    return system_library(
+        name = name,
+        srcs = [join_path(CONFIG.ANDROID_HOME, 'platforms', platform, 'android.jar')],
+        visibility = visibility,
+        deps = deps,
+    )
+
+
 def android_aar_resources(name, src, visibility=None, resource_deps=None, deps=None):
     """Defines a rule to extract resources from a .aar and compile the generated R.java classes.
 
@@ -570,3 +591,4 @@ def _android_tool(tool_name):
 
 CONFIG.setdefault('ANDROID_HOME', '/opt/android')
 CONFIG.setdefault('ANDROID_TOOLS_VERSION', '23.0.2')
+CONFIG.setdefault('ANDROID_JAR', '//third_party/android')
