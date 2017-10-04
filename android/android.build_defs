@@ -256,10 +256,14 @@ def android_binary(name, resources, assets=None, out=None, arch=None, deps=None,
     secrets = []
     keystore = CONFIG.get('ANDROID_KEYSTORE')
     if keystore is None:
-        log.warning("ANDROID_KEYSTORE not specified, will create unsigned .apks. "
+        log.warning("android-keystore not specified, will create unsigned .apks. "
                     "Set it to an empty string if this is the desired functionality.")
     elif keystore:
-        password = CONFIG.get('ANDROID_KEYSTORE_PASSWORD', '')
+        password = CONFIG.get('ANDROID_KEYSTORE_PASSWORD')
+        if password is None:
+            log.warning("android-keystore-password not specified, encrypted keystores won't work. "
+                        "Set it to an empty string if this is the desired functionality.")
+            password = ''
         alias = CONFIG.get('ANDROID_KEYSTORE_ALIAS', '')
         if not alias:
             raise ParseError('You must specify android-keystore-alias in your .plzconfig')
