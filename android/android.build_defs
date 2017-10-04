@@ -26,6 +26,7 @@ TODOs:
  - general ergonomics
  - Redo the tools / config variable setup which is a little messy
  - Support for using local Android Maven repos
+ - Do a higher level rule that handles a default Android setup
  - No doubt we are missing lots of other features
 """
 
@@ -565,3 +566,7 @@ def _android_tool(tool_name):
         return join_path(build_tools_dir, 'zipalign')
     else:
         raise KeyError('Unknown tool: %s' % tool_name)
+
+
+CONFIG.setdefault('ANDROID_HOME', '/opt/android')
+CONFIG.setdefault('ANDROID_TOOLS_VERSION', '23.0.2')
