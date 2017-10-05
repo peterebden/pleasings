@@ -27,7 +27,6 @@ android_library(
 android_binary(
     name = 'apk',
     out = 'AsymmetricFingerprintDialog.apk',
-    #merge_manifests = merge_manifests,
     resource_deps = [
         '//third_party/android:appcompat-v7',
     ],

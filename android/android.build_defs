@@ -270,7 +270,7 @@ def android_binary(name, resources, assets=None, out=None, arch=None, deps=None,
         cmd = ' && '.join([
             'cp $SRCS tmp.apk',
             '$TOOL -verbose -keystore $SECRETS -storepass "%s" tmp.apk %s' % (password, alias),
-            cmd
+            '%s 4 tmp.apk $OUT' % _android_tool('zipalign_tool'),
         ])
         secrets = [keystore]
 
