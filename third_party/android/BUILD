@@ -23,7 +23,7 @@ android_maven_jar(
 
 android_maven_jar(
     name = 'support-v4',
-    id = 'com.android.support:support-v4:23.0.1',
+    id = 'com.android.support:support-v4:25.3.1@aar',
 )
 
 android_maven_jar(
