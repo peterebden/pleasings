@@ -25,23 +25,21 @@ TODOs:
  - Proguard
  - general ergonomics
  - Redo the tools / config variable setup which is a little messy
- - Support for using local Android Maven repos
- - Do a higher level rule that handles a default Android setup
  - No doubt we are missing lots of other features
 """
 
 check_config('ANDROID_HOME', example='/opt/android', rule='Android')
 
 
-def android_resource(name, package, manifest, res, resources_root=None, assets=None,
+def android_resource(name, manifest, res, package='', resources_root=None, assets=None,
                      deps=None, visibility=None):
     """Defines an Android resource target built using aapt.
 
     Args:
       name (str): Name of the rule.
-      package (str): Java package for the generated R.java file.
       manifest (str): Either a file or a build target containing the AndroidManifest.xml file.
       res (str | list): Resources , typically a res/ directory but can be multiple things.
+      package (str): Java package for the generated R.java file.
       resources_root (str): Root directory for resources, as java_library.
       assets (str): Directory containing assets. Often not used.
       deps (list): Extra dependencies for this rule.
@@ -535,6 +533,63 @@ def android_aapt(name, manifest, out=None, tag=None, package=None, res=None,
         building_description = 'Running aapt...',
         deps = deps,
         requires = ['res_src'],
+    )
+
+
+def android_project(name, out=None, srcs=None, package='',
+                    manifest='src/main/AndroidManifest.xml',
+                    res='src/main/res', resources_root='src/main',
+                    assets=False, resource_deps=None, deps=None, visibility=None):
+    """Defines a high-level rule for building an entire Android project.
+
+    This typically sits in the directory alongside src/.
+
+    This builds all the Java sources in one go so doesn't achieve the best
+    results for incrementality or code reuse, but it's a simple way of getting
+    up and going. If you want more control, it's quite obviously just a wrapper
+    around android_resource, android_library and android_binary which are not
+    too hard to break out separately.
+
+    Args:
+      name (str): Name of the rule.
+      out (str): Name of the output .apk file.
+      srcs (list): Java source files to compile. Defaults to everything under src/main/java.
+      package (str): Custom package override for the generated aapt resources. Usually not necessary.
+      manifest (str): The AndroidManifest.xml file. Defaults to src/main/AndroidManifest.xml
+      res (str): Resources for the project. Defaults to src/main/res.
+      resources_root (str): Root directory for the resources. Defaults to src/main, not often changed.
+      assets (str): Directory containing static assets. Default is not to add any, if you do
+                    you'd set it to e.g. src/main/assets.
+      resource_deps (list): Dependencies for resource compile.
+      deps (list): Any other dependencies (typically code dependencies)
+      visibility (list): Visibility specification.
+    """
+    deps = deps or []
+    srcs = srcs or glob(['src/main/java/**/*.java'])
+
+    resource_rule = android_resource(
+        name = '_%s#res' % name,
+        manifest = manifest,
+        package = package,
+        assets = assets,
+        res = res,
+        resources_root = resources_root,
+        deps = resource_deps,
+    )
+
+    library_rule = android_library(
+        name = '_%s#lib' % name,
+        srcs = srcs,
+        deps = [resource_rule] + deps,
+    )
+
+    return android_binary(
+        name = name,
+        out = out,
+        resource_deps = resource_deps,
+        resources = resource_rule,
+        deps = [library_rule] + deps,
+        visibility = visibility,
     )
 
 
