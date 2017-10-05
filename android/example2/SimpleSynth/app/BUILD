@@ -1,7 +1,14 @@
 subinclude('//android')
+subinclude('//android:native')
 package(javac_tool = 'javac')
 
-cc_library(
+ndk_toolchain(
+    version = '4.9',
+    arch = 'arm64',
+    platform = 'android-26',
+)
+
+ndk_library(
     name = 'native',
     srcs = glob(['src/main/cpp/*.cc']),
     hdrs = glob(['src/main/cpp/*.h']),
