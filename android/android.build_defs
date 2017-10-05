@@ -25,6 +25,7 @@ TODOs:
  - Proguard
  - general ergonomics
  - Redo the tools / config variable setup which is a little messy
+ - Write android_maven_jars as an equivalent to maven_jars
  - No doubt we are missing lots of other features
 """
 

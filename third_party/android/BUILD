@@ -3,17 +3,12 @@ package(default_visibility = ['PUBLIC'])
 
 android_jar(
     name = 'android',
-    platform = 'android-23',
+    platform = 'android-25',
 )
 
 android_maven_jar(
     name = 'appcompat-v7',
     id = 'com.android.support:appcompat-v7:23.0.1@aar',
-)
-
-android_maven_jar(
-    name = 'support-annotations',
-    id = 'com.android.support:support-annotations:23.0.1',
 )
 
 android_maven_jar(
@@ -24,14 +19,72 @@ android_maven_jar(
 android_maven_jar(
     name = 'support-v4',
     id = 'com.android.support:support-v4:25.3.1@aar',
+    deps = [
+        ':support-compat',
+        ':support-core-ui',
+        ':support-core-utils',
+        ':support-fragment',
+        ':support-media-compat',
+    ],
 )
 
 android_maven_jar(
+    name = 'support-compat',
+    id = 'com.android.support:support-compat:25.3.1@aar',
+    deps = [
+        ':support-annotations',
+    ],
+)
+
+android_maven_jar(
+    name = 'support-annotations',
+    id = 'com.android.support:support-annotations:25.3.1',
+)
+
+android_maven_jar(
+    name = 'support-media-compat',
+    id = 'com.android.support:support-media-compat:25.3.1@aar',
+    deps = [
+        ':support-annotations',
+        ':support-compat',
+    ],
+)
+
+android_maven_jar(
+    name = 'support-core-utils',
+    id = 'com.android.support:support-core-utils:25.3.1@aar',
+    deps = [
+        ':support-annotations',
+        ':support-compat',
+    ],
+)
+
+android_maven_jar(
+    name = 'support-core-ui',
+    id = 'com.android.support:support-core-ui:25.3.1@aar',
+    deps = [
+        ':support-annotations',
+        ':support-compat',
+    ],
+)
+
+android_maven_jar(
+    name = 'support-fragment',
+    id = 'com.android.support:support-fragment:25.3.1@aar',
+    deps = [
+        ':support-compat',
+        ':support-core-ui',
+        ':support-core-utils',
+        ':support-media-compat',
+    ],
+)
+
+maven_jar(
     name = 'javax.inject',
     id = 'javax.inject:javax.inject:1',
 )
 
-android_maven_jar(
+maven_jar(
     name = 'dagger',
     id = 'com.squareup.dagger:dagger:1.2.2',
     deps = [
