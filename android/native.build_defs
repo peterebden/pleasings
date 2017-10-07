@@ -23,6 +23,12 @@ _NDK_TOOLCHAIN_ABIS = {
     'x86_64': 'x86_64',
 }
 
+_NDK_STL_LIB_NAMES = {
+    'gnu-libstdc++': 'libgnustl_static.a',
+    'llvm-libc++': 'libc++_static.a',  # Might need libunwind etc as well?
+    'stlport': 'libstlport_static.a',
+}
+
 
 def ndk_toolchain(arch, version, platform, root=None, stl='gnu-libstdc++',
                   cflags=None):
@@ -45,6 +51,8 @@ def ndk_toolchain(arch, version, platform, root=None, stl='gnu-libstdc++',
                   defined elsewhere in the config.
       stl (str): Name of the C++ STL to use. Defaults to gnu-libstdc++ but there
                  are several other options installed (llvm-libc++, stlport, etc).
+                 None other than the default have received any testing yet, so consider
+                 this option somewhat experimental.
       cflags (list): Additional compiler flags. These are appended to the existing defaults.
     """
     check_config('ANDROID_HOME', example='/opt/android', rule='Android')
@@ -60,9 +68,11 @@ def ndk_toolchain(arch, version, platform, root=None, stl='gnu-libstdc++',
     platform_root = join_path(root, 'platforms', platform, 'arch-' + arch)
     stl_root = join_path(root, 'sources/cxx-stl', stl, version)
     cflags = ' ' + ' '.join(cflags or [])
-    cflags += ' -I%s/usr/include' % platform_root
+    cflags += ' -I%s/usr/include -DANDROID' % (platform_root)
     cppflags = cflags + ' -I%s/include -I%s/libs/%s/include' % (stl_root, stl_root, abi)
-    ldflags = ' -L%s/usr/lib' % platform_root
+    ldflags = ' -z,noexecstack -Wl,-z,now -Wl,-z,combreloc -Wl,--no-undefined -Wl,--exclude-libs,libgcc.a -Wl,-s '
+    ldflags += '-L%s/usr/lib -B %s/usr/lib -llog -landroid -lm ' % (platform_root, platform_root)
+    ldflags += '%s/libs/%s/%s' % (stl_root, abi, _NDK_STL_LIB_NAMES[stl])
     package(
         cc_tool = join_path(toolchain_root, toolchain_arch + '-gcc'),
         cpp_tool = join_path(toolchain_root, toolchain_arch + '-g++'),
@@ -73,7 +83,7 @@ def ndk_toolchain(arch, version, platform, root=None, stl='gnu-libstdc++',
         default_opt_cflags = CONFIG.DEFAULT_OPT_CFLAGS + cflags,
         default_dbg_cppflags = CONFIG.DEFAULT_DBG_CPPFLAGS + cppflags,
         default_opt_cppflags = CONFIG.DEFAULT_OPT_CPPFLAGS + cppflags,
-        default_ldflags = CONFIG.DEFAULT_LDFLAGS + ldflags,
+        default_ldflags = (CONFIG.DEFAULT_LDFLAGS + ldflags).strip(),
     )
 
 

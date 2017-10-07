@@ -13,6 +13,9 @@ ndk_shared_object(
     name = 'native',
     srcs = glob(['src/main/cpp/*.cc']),
     hdrs = glob(['src/main/cpp/*.h']),
+    linker_flags = [
+        '-lOpenSLES',
+    ],
 )
 
 android_project(
