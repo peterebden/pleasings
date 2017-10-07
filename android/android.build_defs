@@ -594,7 +594,7 @@ def android_project(name, out=None, srcs=None, package='',
         deps = [resource_rule] + deps,
     )
 
-    return android_binary(
+    apk_rule = android_binary(
         name = name,
         out = out,
         resource_deps = resource_deps,
@@ -603,6 +603,18 @@ def android_project(name, out=None, srcs=None, package='',
         deps = [library_rule] + deps,
         visibility = visibility,
     )
+
+    # Generate a virtual rule that will install the final .apk on device via plz run.
+    # N.B. only works when run from the project root.
+    sh_cmd(
+        name = name + '_install',
+        cmd = 'exec adb install -r $(out_location %s)' % apk_rule,
+        deps = [apk_rule],
+    )
+
+    return apk_rule
+
+
 
 
 def _merge_manifests(name, resources, tag='manifest', deps=None):

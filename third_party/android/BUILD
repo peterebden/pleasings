@@ -114,12 +114,12 @@ android_maven_jar(
     ],
 )
 
-maven_jar(
+android_maven_jar(
     name = 'javax.inject',
     id = 'javax.inject:javax.inject:1',
 )
 
-maven_jar(
+android_maven_jar(
     name = 'dagger',
     id = 'com.squareup.dagger:dagger:1.2.2',
     deps = [
