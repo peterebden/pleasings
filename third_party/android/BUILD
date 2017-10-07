@@ -12,7 +12,7 @@ package(javac_tool = 'javac')
 
 android_jar(
     name = 'android',
-    platform = 'android-25',
+    platform = 'android-26',
 )
 
 android_maven_jar(

@@ -68,8 +68,8 @@ def ndk_toolchain(arch, version, platform, root=None, stl='gnu-libstdc++',
     platform_root = join_path(root, 'platforms', platform, 'arch-' + arch)
     stl_root = join_path(root, 'sources/cxx-stl', stl, version)
     cflags = ' ' + ' '.join(cflags or [])
-    cflags += ' -I%s/usr/include -DANDROID' % (platform_root)
-    cppflags = cflags + ' -I%s/include -I%s/libs/%s/include' % (stl_root, stl_root, abi)
+    cflags += ' -isystem%s/usr/include -isystem%s/sysroot/usr/include -DANDROID' % (platform_root, root)
+    cppflags = cflags + ' -isystem%s/include -isystem%s/libs/%s/include' % (stl_root, stl_root, abi)
     ldflags = ' -z,noexecstack -Wl,-z,now -Wl,-z,combreloc -Wl,--no-undefined -Wl,--exclude-libs,libgcc.a -Wl,-s '
     ldflags += '-L%s/usr/lib -B %s/usr/lib -llog -landroid -lm ' % (platform_root, platform_root)
     ldflags += '%s/libs/%s/%s' % (stl_root, abi, _NDK_STL_LIB_NAMES[stl])
@@ -134,6 +134,7 @@ def ndk_shared_object(name, srcs=None, hdrs=None, out='', compiler_flags=None, l
     )
 
 
-# Right now this is just an alias.
-# Unsure if there is any real point doing ndk_binary.
+# Various aliases.
 ndk_library = cc_library
+ndk_cc_library = cc_library
+ndk_c_library = c_library

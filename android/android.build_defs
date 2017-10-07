@@ -547,7 +547,7 @@ def android_aapt(name, manifest, out=None, tag=None, package=None, res=None,
 def android_project(name, out=None, srcs=None, package='',
                     manifest='src/main/AndroidManifest.xml',
                     res='src/main/res', resources_root='src/main',
-                    assets=False, resource_deps=None, native_libs=None,
+                    library=False, assets=None, resource_deps=None, native_libs=None,
                     deps=None, visibility=None):
     """Defines a high-level rule for building an entire Android project.
 
@@ -569,6 +569,7 @@ def android_project(name, out=None, srcs=None, package='',
       resources_root (str): Root directory for the resources. Defaults to src/main, not often changed.
       assets (str): Directory containing static assets. Default is not to add any, if you do
                     you'd set it to e.g. src/main/assets.
+      library (bool): If True, this project is set up only as a library (i.e. no APK will be produced).
       resource_deps (list): Dependencies for resource compile.
       native_libs (list) Native libraries to include. See native.build_defs for more information;
                          typically these would be ndk_shared_object rules.
@@ -593,6 +594,21 @@ def android_project(name, out=None, srcs=None, package='',
         srcs = srcs,
         deps = [resource_rule] + deps,
     )
+
+    if library:
+        return filegroup(
+            name = name,
+            srcs = [library_rule],
+            provides = {
+                'dex': library_rule,
+                'java': resource_rule,
+                'res_src': resource_rule,
+                'manifest': resource_rule,
+                'res': resource_rule,
+                'r': resource_rule,
+            },
+            visibility = visibility,
+        )
 
     apk_rule = android_binary(
         name = name,
