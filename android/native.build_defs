@@ -60,8 +60,9 @@ def ndk_toolchain(arch, version, platform, root=None, stl='gnu-libstdc++',
     platform_root = join_path(root, 'platforms', platform, 'arch-' + arch)
     stl_root = join_path(root, 'sources/cxx-stl', stl, version)
     cflags = ' ' + ' '.join(cflags or [])
-    cflags += ' -I %s/usr/include -L %s/usr/lib' % (platform_root, platform_root)
-    cppflags = cflags + ' -I %s/include -I %s/libs/%s/include' % (stl_root, stl_root, abi)
+    cflags += ' -I%s/usr/include' % platform_root
+    cppflags = cflags + ' -I%s/include -I%s/libs/%s/include' % (stl_root, stl_root, abi)
+    ldflags = ' -L%s/usr/lib' % platform_root
     package(
         cc_tool = join_path(toolchain_root, toolchain_arch + '-gcc'),
         cpp_tool = join_path(toolchain_root, toolchain_arch + '-g++'),
@@ -72,6 +73,7 @@ def ndk_toolchain(arch, version, platform, root=None, stl='gnu-libstdc++',
         default_opt_cflags = CONFIG.DEFAULT_OPT_CFLAGS + cflags,
         default_dbg_cppflags = CONFIG.DEFAULT_DBG_CPPFLAGS + cppflags,
         default_opt_cppflags = CONFIG.DEFAULT_OPT_CPPFLAGS + cppflags,
+        default_ldflags = CONFIG.DEFAULT_LDFLAGS + ldflags,
     )
 
 

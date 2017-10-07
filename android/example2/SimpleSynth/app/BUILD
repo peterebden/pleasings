@@ -9,7 +9,7 @@ ndk_toolchain(
     platform = 'android-26',
 )
 
-ndk_library(
+ndk_shared_object(
     name = 'native',
     srcs = glob(['src/main/cpp/*.cc']),
     hdrs = glob(['src/main/cpp/*.h']),
