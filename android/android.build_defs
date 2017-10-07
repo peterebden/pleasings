@@ -605,10 +605,15 @@ def android_project(name, out=None, srcs=None, package='',
     )
 
     # Generate a virtual rule that will install the final .apk on device via plz run.
+    # When run in debug mode, also attaches to the device using logcat.
     # N.B. only works when run from the project root.
+    install_cmd = 'adb install -r $(out_location %s)' % apk_rule
     sh_cmd(
         name = name + '_install',
-        cmd = 'exec adb install -r $(out_location %s)' % apk_rule,
+        cmd = {
+            'opt': 'exec ' + install_cmd,
+            'dbg': install_cmd + ' && adb logcat -c && adb logcat',
+        },
         deps = [apk_rule],
     )
 
