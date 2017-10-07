@@ -5,6 +5,7 @@ package(javac_tool = 'javac')
 ndk_toolchain(
     version = '4.9',
     arch = 'arm64',
+    cflags = ['-Wno-unused-variable'],
     platform = 'android-26',
 )
 

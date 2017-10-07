@@ -14,8 +14,18 @@ _NDK_TOOLCHAIN_ARCHS = {
     'x86_64': 'x86_64',
 }
 
+_NDK_TOOLCHAIN_ABIS = {
+    'arm': 'armeabi-v7a',  # There is also armeabi, but does anyone target that these days?
+    'arm64': 'arm64-v8a',
+    'mips': 'mips',
+    'mip64': 'mip64',
+    'x86': 'x86',
+    'x86_64': 'x86_64',
+}
 
-def ndk_toolchain(arch, version, platform, root=None):
+
+def ndk_toolchain(arch, version, platform, root=None, stl='gnu-libstdc++',
+                  cflags=None):
     """Sets up the current package to use a particular NDK version.
 
     This is a shorthand for calling package() with a bunch of parameters;
@@ -33,6 +43,9 @@ def ndk_toolchain(arch, version, platform, root=None):
       platform (str): Android platform to target, e.g. android-26.
       root (str): Root of the NDK. Defaults to /ndk-bundle under ANDROID_HOME as
                   defined elsewhere in the config.
+      stl (str): Name of the C++ STL to use. Defaults to gnu-libstdc++ but there
+                 are several other options installed (llvm-libc++, stlport, etc).
+      cflags (list): Additional compiler flags. These are appended to the existing defaults.
     """
     check_config('ANDROID_HOME', example='/opt/android', rule='Android')
     if arch not in _NDK_TOOLCHAIN_ARCHS:
@@ -40,14 +53,15 @@ def ndk_toolchain(arch, version, platform, root=None):
                          (arch, ', '.join(_NDK_TOOLCHAIN_ARCHS)))
 
     toolchain_arch = _NDK_TOOLCHAIN_ARCHS[arch]
+    abi = _NDK_TOOLCHAIN_ABIS[arch]
     root = root or join_path(CONFIG.ANDROID_HOME, 'ndk-bundle')
     toolchain_root = join_path(root, 'toolchains', toolchain_arch + '-' + version,
                                'prebuilt/%s-%s' % (CONFIG.OS, CONFIG.ARCH.replace('amd64', 'x86_64')), 'bin')
     platform_root = join_path(root, 'platforms', platform, 'arch-' + arch)
-    # I guess we should make this configurable, there are a bunch of options
-    stl_root = join_path(root, 'sources/cxx-stl/gnu-libstdc++', version)
-    cflags = ' -I %s/usr/include -L %s/usr/lib' % (platform_root, platform_root)
-    cppflags = cflags + ' -I %s/include' % stl_root
+    stl_root = join_path(root, 'sources/cxx-stl', stl, version)
+    cflags = ' ' + ' '.join(cflags or [])
+    cflags += ' -I %s/usr/include -L %s/usr/lib' % (platform_root, platform_root)
+    cppflags = cflags + ' -I %s/include -I %s/libs/%s/include' % (stl_root, stl_root, abi)
     package(
         cc_tool = join_path(toolchain_root, toolchain_arch + '-gcc'),
         cpp_tool = join_path(toolchain_root, toolchain_arch + '-g++'),
