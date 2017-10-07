@@ -85,10 +85,55 @@ def ndk_toolchain(arch, version, platform, root=None, stl='gnu-libstdc++',
         default_opt_cppflags = CONFIG.DEFAULT_OPT_CPPFLAGS + cppflags,
         default_ldflags = (CONFIG.DEFAULT_LDFLAGS + ldflags).strip(),
     )
+    CONFIG.NDK_ARCH = arch
+    CONFIG.NDK_ABI = abi
 
 
-# Right now these are just aliases, later they might get more personality
-# of their own.
+def ndk_shared_object(name, srcs=None, hdrs=None, out='', compiler_flags=None, linker_flags=None,
+                      includes=None, test_only=False, deps=None, visibility=None):
+    """Generates a C++ shared object for Android.
+
+    It's precompressed into a .jar file for usage by other rules.
+
+    Args:
+      name (str): Name of the rule
+      srcs (list): C or C++ source files to compile.
+      hdrs (list): Header files. These will be made available to dependent rules, so the distinction
+                   between srcs and hdrs is important.
+      out (str): Name of the output .so. Defaults to name + .so.
+      compiler_flags (list): Flags to pass to the compiler.
+      linker_flags (list): Flags to pass to the linker.
+      test_only (bool): If True, is only available to other test rules.
+      includes (list): Include directories to be added to the compiler's lookup path.
+      test_only (bool): If True, is only available to other test rules.w
+      deps (list): Dependent rules.
+      visibility (list): Visibility declaration for this rule.
+    """
+    so_rule = cc_shared_object(
+        name = '_%s#so' % name,
+        srcs = srcs,
+        hdrs = hdrs,
+        out = out or name + '.so',
+        compiler_flags = compiler_flags,
+        linker_flags = linker_flags,
+        includes = includes,
+        test_only = test_only,
+        deps = deps,
+    )
+    return genrule(
+        name = name,
+        srcs = [so_rule],
+        outs = [name + '.jar'],
+        tools = [CONFIG.JARCAT_TOOL],
+        cmd = [
+            'mkdir -p lib/' + CONFIG.NDK_ABI,
+            'mv $SRCS lib/' + CONFIG.NDK_ABI,
+            '$TOOL -d -i lib'
+        ],
+        visibility = visibility,
+    )
+
+
+# Right now this is just an alias.
 # Unsure if there is any real point doing ndk_binary.
 ndk_library = cc_library
-ndk_shared_object = cc_shared_object

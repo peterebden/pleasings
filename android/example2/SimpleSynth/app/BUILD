@@ -12,15 +12,15 @@ ndk_toolchain(
 ndk_shared_object(
     name = 'native',
     srcs = glob(['src/main/cpp/*.cc']),
+    out = 'libSimpleSynth.so',
     hdrs = glob(['src/main/cpp/*.h']),
-    linker_flags = [
-        '-lOpenSLES',
-    ],
+    linker_flags = ['-lOpenSLES'],
 )
 
 android_project(
     name = 'simple_synth',
     out = 'SimpleSynth.apk',
+    native_libs = [':native'],
     resource_deps = [
         '//third_party/android:appcompat-v7',
     ],

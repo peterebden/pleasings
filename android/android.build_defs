@@ -169,7 +169,7 @@ def android_library(name, srcs=None, src_dir=None, resources=None, resources_roo
 
 
 def android_binary(name, resources, assets=None, out=None, arch=None, deps=None, visibility=None,
-                   labels=None, merge_manifests=False, resource_deps=None):
+                   labels=None, merge_manifests=False, resource_deps=None, native_libs=None):
     """Creates an APK from a bunch of android_library rules.
 
     Args:
@@ -187,6 +187,8 @@ def android_binary(name, resources, assets=None, out=None, arch=None, deps=None,
       merge_manifests (bool): True to merge manifests of all dependencies, false to just use
                               the existing one.
       resource_deps (list): Resource dependencies when running aapt.
+      native_libs (list): Native libraries to add. See native.build_defs for more information;
+                          typically these would be ndk_shared_object rules.
     """
     dex_rule = build_rule(
         name = name,
@@ -244,7 +246,7 @@ def android_binary(name, resources, assets=None, out=None, arch=None, deps=None,
         tag = 'unsigned',
         srcs = {
             'dex': [dex_rule],
-            'other': [native_rule, aapt_rule],
+            'other': [native_rule, aapt_rule] + (native_libs or []),
         },
         outs = ['unsigned_' + out],
         cmd = 'mv $SRCS_DEX classes.dex && $TOOL -i . -o $OUTS --include_other --strict',
@@ -274,7 +276,7 @@ def android_binary(name, resources, assets=None, out=None, arch=None, deps=None,
         ])
         secrets = [keystore]
 
-    build_rule(
+    return build_rule(
         name = name,
         srcs = [unsigned_rule],
         outs = [out],
@@ -541,7 +543,8 @@ def android_aapt(name, manifest, out=None, tag=None, package=None, res=None,
 def android_project(name, out=None, srcs=None, package='',
                     manifest='src/main/AndroidManifest.xml',
                     res='src/main/res', resources_root='src/main',
-                    assets=False, resource_deps=None, deps=None, visibility=None):
+                    assets=False, resource_deps=None, native_libs=None,
+                    deps=None, visibility=None):
     """Defines a high-level rule for building an entire Android project.
 
     This typically sits in the directory alongside src/.
@@ -563,6 +566,8 @@ def android_project(name, out=None, srcs=None, package='',
       assets (str): Directory containing static assets. Default is not to add any, if you do
                     you'd set it to e.g. src/main/assets.
       resource_deps (list): Dependencies for resource compile.
+      native_libs (list) Native libraries to include. See native.build_defs for more information;
+                         typically these would be ndk_shared_object rules.
       deps (list): Any other dependencies (typically code dependencies)
       visibility (list): Visibility specification.
     """
@@ -590,6 +595,7 @@ def android_project(name, out=None, srcs=None, package='',
         out = out,
         resource_deps = resource_deps,
         resources = resource_rule,
+        native_libs = native_libs,
         deps = [library_rule] + deps,
         visibility = visibility,
     )

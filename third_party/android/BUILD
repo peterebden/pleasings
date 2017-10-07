@@ -1,5 +1,14 @@
+# Third-party dependencies for Android targets.
+# A lot of these are generated via commands like:
+#   plz tool maven -- -a com.android.support:appcompat-v7:25.3.1@aar
+# with a few manual fixups.
+#
+# TODO(peterebden): Introduce support for android_maven_jars to do
+#                   that dynamically.
+
 subinclude('//android')
 package(default_visibility = ['PUBLIC'])
+package(javac_tool = 'javac')
 
 android_jar(
     name = 'android',
@@ -8,7 +17,14 @@ android_jar(
 
 android_maven_jar(
     name = 'appcompat-v7',
-    id = 'com.android.support:appcompat-v7:23.0.1@aar',
+    id = 'com.android.support:appcompat-v7:25.3.1@aar',
+    resources = True,
+    deps = [
+        ':animated-vector-drawable',
+        ':support-annotations',
+        ':support-v4',
+        ':support-vector-drawable',
+    ],
 )
 
 android_maven_jar(
@@ -76,6 +92,25 @@ android_maven_jar(
         ':support-core-ui',
         ':support-core-utils',
         ':support-media-compat',
+    ],
+)
+
+android_maven_jar(
+    name = 'support-vector-drawable',
+    id = 'com.android.support:support-vector-drawable:25.3.1@aar',
+    hash = '',
+    deps = [
+        ':support-annotations',
+        ':support-compat',
+    ],
+)
+
+android_maven_jar(
+    name = 'animated-vector-drawable',
+    id = 'com.android.support:animated-vector-drawable:25.3.1@aar',
+    hash = '',
+    deps = [
+        ':support-vector-drawable',
     ],
 )
 
