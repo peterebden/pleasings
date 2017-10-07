@@ -271,8 +271,9 @@ def android_binary(name, resources, assets=None, out=None, arch=None, deps=None,
             raise ParseError('You must specify android-keystore-alias in your .plzconfig')
         cmd = ' && '.join([
             'cp $SRCS tmp.apk',
-            '$TOOL -verbose -keystore $SECRETS -storepass "%s" tmp.apk %s' % (password, alias),
-            '%s 4 tmp.apk $OUT' % _android_tool('zipalign_tool'),
+            '$TOOLS_SIGNER -verbose -keystore $SECRETS -storepass "%s" tmp.apk %s' % (password, alias),
+            '%s 4 tmp.apk tmp2.apk' % _android_tool('zipalign_tool'),
+            '$TOOLS_JARCAT -i tmp2.apk -s ".apk" -o $OUT',
         ])
         secrets = [keystore]
 
@@ -285,7 +286,10 @@ def android_binary(name, resources, assets=None, out=None, arch=None, deps=None,
         secrets = secrets,
         visibility = visibility,
         labels = (labels or []) + ['apk'],
-        tools = ['jarsigner'],
+        tools = {
+            'signer': ['jarsigner'],
+            'jarcat': [CONFIG.JARCAT_TOOL],
+        },
     )
 
 
