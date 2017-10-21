@@ -26,7 +26,10 @@ def android_appium_test(name, srcs, apk, deps=None, labels=None,
         data = [apk],
         deps = deps,
         labels = labels,
-        container = container or {'docker_image': CONFIG.APPIUM_IMAGE},
+        container = container or {
+            'docker_image': CONFIG.APPIUM_IMAGE,
+            'docker_run_args': '--privileged -e APPIUM=TRUE',
+        },
         timeout = timeout,
         flaky = flaky,
     )

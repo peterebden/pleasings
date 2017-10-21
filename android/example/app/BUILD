@@ -21,6 +21,6 @@ android_appium_test(
     srcs = ['example_app_test.py'],
     apk = ':example_app',
     deps = [
-        '//third_party/python:appium',
+        '//android:appium_test_base',
     ],
 )
