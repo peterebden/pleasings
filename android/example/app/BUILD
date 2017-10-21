@@ -1,4 +1,5 @@
 subinclude('//android')
+subinclude('//android:appium')
 
 android_project(
     name = 'example_app',
@@ -13,4 +14,13 @@ android_project(
         '//third_party/android:javax.inject',
     ],
     visibility = ['//android/...'],
+)
+
+android_appium_test(
+    name = 'example_app_test',
+    srcs = ['example_app_test.py'],
+    apk = ':example_app',
+    deps = [
+        '//third_party/python:appium',
+    ],
 )

@@ -36,3 +36,17 @@ pip_library(
     package_name = 'enum34',
     version = '1.1.6',
 )
+
+pip_library(
+    name = 'appium',
+    package_name = 'Appium-Python-Client',
+    version = '0.24',
+    deps = [
+        ':selenium',
+    ],
+)
+
+pip_library(
+    name = 'selenium',
+    version = '3.6.0',
+)

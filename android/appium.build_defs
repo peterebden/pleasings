@@ -1,0 +1,35 @@
+"""Test rules for Android apps using Appium."""
+
+
+def android_appium_test(name, srcs, apk, deps=None, labels=None,
+                        container=None, timeout=0, flaky=False):
+    """Defines a test using Appium.
+
+    This is really just a wrapper around python_test with some niceties
+    for the container.
+
+    Args:
+      name (str): Name of the rule
+      srcs (list): Test source files
+      apk (str): apk to test, typically an android_binary rule.
+      deps (list): Other dependencies
+      labels (list): Labels to apply to the rule.
+      container (str | dict): Container to run the test in. Defaults to the
+                              APPIUM_IMAGE config setting.
+      timeout (int): Test timeout, in seconds.
+      flaky (bool | int): Whether the test should be treated as flaky and
+                          automatically retried on failure.
+    """
+    return python_test(
+        name = name,
+        srcs = srcs,
+        data = [apk],
+        deps = deps,
+        labels = labels,
+        container = container or {'docker_image': CONFIG.APPIUM_IMAGE},
+        timeout = timeout,
+        flaky = flaky,
+    )
+
+
+CONFIG.setdefault('APPIUM_IMAGE', 'butomo1989/docker-android-x86-7.1.1')
