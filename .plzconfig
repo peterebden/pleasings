@@ -27,6 +27,8 @@ protocgoplugin = //third_party/go:protoc-gen-go
 grpcjavaplugin = //third_party/java:protoc-gen-grpc-java
 
 [python]
+defaultinterpreter = python3
+piptool = pip3
 moduledir = third_party.python
 
 [java]
