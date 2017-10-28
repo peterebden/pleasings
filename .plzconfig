@@ -21,9 +21,6 @@ android-tools-version = 25.0.3
 android-keystore =
 android-keystore-password =
 android-keystore-alias =
-; This needs to be set (and installed, of course) for ThinLTO to work.
-; Rather awkwardly there doesn't seem to be a way of finding it ourselves.
-thinlto-plugin = /usr/lib/llvm-6.0/lib/LLVMgold.so
 
 [cpp]
 ; A recent version of Clang is required for ThinLTO.
@@ -31,7 +28,7 @@ thinlto-plugin = /usr/lib/llvm-6.0/lib/LLVMgold.so
 ; you might reconfigure this to just 'clang' if you have that on your PATH.
 cctool = clang-6.0
 cpptool = clang++-6.0
-ldtool = gold
+ldtool = lld-6.0
 
 [proto]
 protocgoplugin = //third_party/go:protoc-gen-go

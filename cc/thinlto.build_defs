@@ -15,11 +15,10 @@ One important limitation versus the builtin rules is that this does not
 support rules as sources that expand to more than one file. It's unclear
 at what point we'll be able to support this.
 
-Obviously, you must be using sufficiently recent versions of Clang and Gold
-(or lld) in order for this to work.
+Obviously, you must be using sufficiently recent versions of Clang and lld
+in order for this to work. Theoretically we can support it on Gold as well
+but it needs a little extension to locate LLVMgold.so.
 """
-
-check_config('THINLTO_PLUGIN', example='/usr/lib/llvm-4.0/lib/LLVMgold.so', rule='ThinLTO')
 
 
 _COVERAGE_FLAGS = ' -ftest-coverage -fprofile-arcs -fprofile-dir=.'
@@ -139,13 +138,12 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         tag = tag + '_bc',
         srcs = [o_rule],
         outs = [out + '.bc'],
-        cmd = '$TOOLS_CC -fuse-ld=$(basename $TOOLS_LD) -O2 $SRCS -Wl,-plugin $TOOLS_PLUGIN -Wl,-plugin-opt,thinlto-index-only',
+        cmd = '$TOOLS_CC -fuse-ld=$(basename $TOOLS_LD) -O2 $SRCS -Wl,-plugin-opt,thinlto-index-only',
         building_description = 'Generating LTO bitcode...',
         test_only = test_only,
         tools = {
             'cc': tools,
             'ld': [CONFIG.LD_TOOL],
-            'plugin': [CONFIG.THINLTO_PLUGIN],
         },
     ) for o_rule, tag, out in zip(o_rules, tags, outs)]
 
