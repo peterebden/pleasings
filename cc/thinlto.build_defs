@@ -20,6 +20,8 @@ in order for this to work. Theoretically we can support it on Gold as well
 but it needs a little extension to locate LLVMgold.so.
 """
 
+check_config('LTOTOOL', example='llvm-lto-6.0', rule='ThinLTO')
+
 
 _COVERAGE_FLAGS = ' -ftest-coverage -fprofile-arcs -fprofile-dir=.'
 # OSX's ld uses --all_load / --noall_load instead of --whole-archive.
@@ -138,13 +140,10 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         tag = tag + '_bc',
         srcs = [o_rule],
         outs = [out + '.bc'],
-        cmd = '$TOOLS_CC -fuse-ld=$(basename $TOOLS_LD) -O2 $SRCS -Wl,-plugin-opt,thinlto-index-only',
+        cmd = '$TOOL -thinlto $SRCS -o $OUT && mv *.bc $OUT',
         building_description = 'Generating LTO bitcode...',
         test_only = test_only,
-        tools = {
-            'cc': tools,
-            'ld': [CONFIG.LD_TOOL],
-        },
+        tools = [CONFIG.LTOTOOL],
     ) for o_rule, tag, out in zip(o_rules, tags, outs)]
 
     # And for the native object files

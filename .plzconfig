@@ -21,6 +21,8 @@ android-tools-version = 25.0.3
 android-keystore =
 android-keystore-password =
 android-keystore-alias =
+; Tool to generate the ThinLTO index files.
+ltotool = llvm-lto-6.0
 
 [cpp]
 ; A recent version of Clang is required for ThinLTO.
