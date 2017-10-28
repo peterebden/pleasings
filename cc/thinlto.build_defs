@@ -173,26 +173,35 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         },
         outs = [out + '.o'],
         cmd = '$TOOL -o $OUT -x ir $SRCS_BC -c -fthinlto-index=$SRCS_IDX',
+        requires = ['cc_bc'],
         deps = bc_rules,
         building_description = 'Compiling / linking...',
         test_only = test_only,
         tools = tools,
+        output_is_complete = True,
     ) for bc_rule, idx_rule, tag, out in zip(bc_rules, idx_rules, tags, outs)]
 
-    if len(srcs) > 1:
-        # Collect these as a single rule which we can then provide.
-        o_rule = filegroup(
-            name = name,
-            tag = 'o',
-            srcs = o_rules,
-            test_only = test_only,
-        )
-        srcs = [o_rule]
-        provides = {'cc': o_rule, 'cc_hdrs': hdrs_rule}
-    else:
-        # Optimise slightly by skipping the filegroups which are now unnecessary.
-        srcs = o_rules
-        provides = {'cc': o_rules[0], 'cc_hdrs': hdrs_rule}
+    # Collect these as a single rule which we can then provide.
+    # We must do this even if there's only one in order to make sure the correct
+    # dependencies are found with output_is_complete and so forth.
+    o_rule = filegroup(
+        name = name,
+        tag = 'o',
+        srcs = o_rules,
+        test_only = test_only,
+        output_is_complete = False,
+        deps = deps,
+    )
+    bc_rule = filegroup(
+        name = name,
+        tag = 'bc',
+        srcs = bc_rules,
+        test_only = test_only,
+        output_is_complete = False,
+        deps = deps,
+    )
+    srcs = [o_rule]
+    provides = {'cc': o_rule, 'cc_bc': bc_rule, 'cc_hdrs': hdrs_rule}
 
     if alwayslink:
         labels.append('cc:al:%s/%s.a' % (get_base_path(), name))
