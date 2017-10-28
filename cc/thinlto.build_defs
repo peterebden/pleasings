@@ -113,11 +113,11 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
     # than giving them all to gcc in one invocation.
     tags = [src.replace('/', '_').replace('.', '_').replace(':', '_').replace('|', '_') for src in srcs]
     outs = [name + '_' + tag for tag in tags]
-    o_rules = [build_rule(
+    bc_rules = [build_rule(
         name = name,
-        tag = tag,
+        tag = tag + '_bc',
         srcs = {'srcs': [src], 'hdrs': hdrs, 'priv': private_hdrs},
-        outs = [out + '.o'],
+        outs = [out + '.bc'],
         optional_outs = ['*.gcno'],  # For coverage
         deps = deps,
         cmd = cmds,
@@ -131,59 +131,55 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         needs_transitive_deps = True,
     ) for src, tag, out in zip(srcs, tags, outs)]
 
-    # Separate rules for the ThinLTO bitcode.
-    bc_rules = [build_rule(
+    # Separate rules for the ThinLTO index files.
+    idx_rules = [build_rule(
         name = name,
-        tag = tag + '_bc',
-        srcs = [o_rule],
-        outs = [out + '.bc'],
-        cmd = '$TOOL -flto=thin -Wl,--plugin-opt=thinlto-index-only=$OUT $SRCS',
-        building_description = 'Generating LTO bitcode...',
+        tag = tag + '_idx',
+        srcs = [bc_rule],
+        outs = [out + '.idx'],
+        cmd = '$TOOL -flto=thin -Wl,--plugin-opt=thinlto-index-only $SRCS && mv *.bc $OUT',
+        building_description = 'Generating LTO index...',
         test_only = test_only,
         tools = tools,
-    ) for o_rule, tag, out in zip(o_rules, tags, outs)]
+    ) for bc_rule, tag, out in zip(bc_rules, tags, outs)]
 
-    # And for the native object files
-    no_rules = [build_rule(
+    # And for the actual object files
+    o_rules = [build_rule(
         name = name,
-        tag = tag + '_no',
+        tag = tag + '_o',
         srcs = {
-            'o': [o_rule],
             'bc': [bc_rule],
+            'idx': [idx_rule],
         },
-        outs = [out + '.native.o'],
-        cmd = '$TOOL -O2 -o $OUT -x ir $SRCS_O -c -fthinlto-index=$SRCS_BC',
+        outs = [out + '.o'],
+        cmd = '$TOOL -flto=thin -o $OUT -x ir $SRCS_BC -c -fthinlto-index=$SRCS_IDX',
         deps = bc_rules,
-        building_description = 'Performing LTO...',
+        building_description = 'Compiling / linking...',
         test_only = test_only,
         tools = tools,
-    ) for o_rule, bc_rule, tag, out in zip(o_rules, bc_rules, tags, outs)]
+    ) for bc_rule, idx_rule, tag, out in zip(bc_rules, idx_rules, tags, outs)]
 
     if len(srcs) > 1:
         # Collect these as a single rule which we can then provide.
-        no_rule = filegroup(
+        o_rule = filegroup(
             name = name,
             tag = 'o',
-            srcs = no_rules,
+            srcs = o_rules,
             test_only = test_only,
         )
-        bc_rule = filegroup(
-            name = name,
-            tag = 'bc',
-            srcs = bc_rules,
-            test_only = test_only,
-        )
-        provides = {'cc': no_rule, 'bc': bc_rule, 'cc_hdrs': hdrs_rule}
+        srcs = [o_rule]
+        provides = {'cc': o_rule, 'cc_hdrs': hdrs_rule}
     else:
         # Optimise slightly by skipping the filegroups which are now unnecessary.
-        provides = {'cc': no_rules[0], 'bc': bc_rules[0], 'cc_hdrs': hdrs_rule}
+        srcs = o_rules
+        provides = {'cc': o_rules[0], 'cc_hdrs': hdrs_rule}
 
     if alwayslink:
         labels.append('cc:al:%s/%s.a' % (get_base_path(), name))
 
     return filegroup(
         name = name,
-        srcs = no_rules,
+        srcs = srcs,
         deps = [hdrs_rule],
         provides = provides,
         labels = labels,
