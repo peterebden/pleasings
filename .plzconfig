@@ -21,8 +21,9 @@ android-tools-version = 25.0.3
 android-keystore =
 android-keystore-password =
 android-keystore-alias =
-; Tool to generate the ThinLTO index files.
-ltotool = llvm-lto-6.0
+; This needs to be set (and installed, of course) for ThinLTO to work.
+; Rather awkwardly there doesn't seem to be a way of finding it ourselves.
+thinlto-plugin = /usr/lib/llvm-6.0/lib/LLVMgold.so
 
 [cpp]
 ; A recent version of Clang is required for ThinLTO.
@@ -30,7 +31,7 @@ ltotool = llvm-lto-6.0
 ; you might reconfigure this to just 'clang' if you have that on your PATH.
 cctool = clang-6.0
 cpptool = clang++-6.0
-ldtool = lld-6.0
+ldtool = gold
 
 [proto]
 protocgoplugin = //third_party/go:protoc-gen-go
