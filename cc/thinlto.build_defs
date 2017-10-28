@@ -137,7 +137,7 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         name = name,
         tag = tag + '_bc',
         srcs = {'srcs': [src], 'hdrs': hdrs, 'priv': private_hdrs},
-        outs = [out + '.bc'],
+        outs = [out + '.bc.o'],  # Unbelievably this must end in .o, the tool's behaviour is totally different if not.
         optional_outs = ['*.gcno'],  # For coverage
         deps = deps,
         cmd = cmds,
@@ -157,7 +157,7 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         tag = tag + '_idx',
         srcs = [bc_rule],
         outs = [out + '.idx'],
-        cmd = '$TOOL -flto=thin -Wl,--plugin-opt=thinlto-index-only $SRCS && mv *.bc $OUT',
+        cmd = '$TOOL -flto=thin -Wl,--plugin-opt=thinlto-index-only $SRC -o $OUT',
         building_description = 'Generating LTO index...',
         test_only = test_only,
         tools = tools,
@@ -172,7 +172,7 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
             'idx': [idx_rule],
         },
         outs = [out + '.o'],
-        cmd = '$TOOL -flto=thin -o $OUT -x ir $SRCS_BC -c -fthinlto-index=$SRCS_IDX',
+        cmd = '$TOOL -o $OUT -x ir $SRCS_BC -c -fthinlto-index=$SRCS_IDX',
         deps = bc_rules,
         building_description = 'Compiling / linking...',
         test_only = test_only,
