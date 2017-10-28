@@ -139,7 +139,7 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         tag = tag + '_bc',
         srcs = [o_rule],
         outs = [out + '.bc'],
-        cmd = '$TOOLS_CC -fuse-ld=$(basename $TOOLS_LD) -O2 $SRCS -Wl,-plugin $TOOLS_PLUGIN -Wl,-plugin-opt,-thinlto-index-only',
+        cmd = '$TOOLS_CC -fuse-ld=$(basename $TOOLS_LD) -O2 $SRCS -Wl,-plugin $TOOLS_PLUGIN -Wl,-plugin-opt,thinlto-index-only',
         building_description = 'Generating LTO bitcode...',
         test_only = test_only,
         tools = {
