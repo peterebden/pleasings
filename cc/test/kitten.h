@@ -17,8 +17,8 @@ public:
   void SetAge(int new_age);
 
 protected:
-  std::string name;
-  int age;
+  std::string name_;
+  int age_;
 };
 
 #endif  // _CC_TEST_KITTEN_H

@@ -1,6 +1,11 @@
 [please]
 version = >=9.2.3
 
+[build]
+path = /usr/local/bin:/usr/bin:/bin
+; It's quite likely that anyone using Rust will have it here.
+path = ~/.cargo/bin
+
 [buildconfig]
 grm-test-main = //grm:test_main
 grpc-gateway-plugin = //third_party/go:protoc-gen-grpc-gateway
@@ -16,10 +21,14 @@ android-tools-version = 25.0.3
 android-keystore =
 android-keystore-password =
 android-keystore-alias =
+; This needs to be set (and installed, of course) for ThinLTO to work.
+; Rather awkwardly there doesn't seem to be a way of finding it ourselves.
+thinlto-plugin = /usr/lib/llvm-4.0/lib/LLVMgold.so
 
 [cpp]
 ; Clang is required for ThinLTO
-cpptool = clang
+cctool = clang
+cpptool = clang++
 ldtool = gold
 
 [proto]

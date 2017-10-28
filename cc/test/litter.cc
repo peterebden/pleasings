@@ -10,6 +10,6 @@ const vector<Kitten>& Litter::Kittens() const {
   return kittens_;
 }
 
-void AddKitten(const Kitten& kitten) {
+void Litter::AddKitten(const Kitten& kitten) {
   kittens_.push_back(kitten);
 }
