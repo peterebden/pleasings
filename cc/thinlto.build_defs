@@ -151,34 +151,34 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         },
         outs = [out + '.native.o'],
         cmd = '$TOOL -O2 -o $OUT -x ir $SRCS_O -c -fthinlto-index=$SRCS_BC',
-        deps = [bc_rules],
+        deps = bc_rules,
         building_description = 'Performing LTO...',
         tools = tools,
     ) for o_rule, bc_rule, tag, out in zip(o_rules, bc_rules, tags, outs)]
 
     if len(srcs) > 1:
         # Collect these as a single rule which we can then provide.
-        o_rule = filegroup(
+        no_rule = filegroup(
             name = name,
             tag = 'o',
-            srcs = o_rules,
+            srcs = no_rules,
         )
         bc_rule = filegroup(
             name = name,
             tag = 'bc',
             srcs = bc_rules,
         )
-        provides = {'cc': o_rule, 'bc': bc_rule, 'cc_hdrs': hdrs_rule}
+        provides = {'cc': no_rule, 'bc': bc_rule, 'cc_hdrs': hdrs_rule}
     else:
         # Optimise slightly by skipping the filegroups which are now unnecessary.
-        provides = {'cc': o_rules[0], 'bc': bc_rules[0], 'cc_hdrs': hdrs_rule}
+        provides = {'cc': no_rules[0], 'bc': bc_rules[0], 'cc_hdrs': hdrs_rule}
 
     if alwayslink:
         labels.append('cc:al:%s/%s.a' % (get_base_path(), name))
 
     return filegroup(
         name = name,
-        srcs = [lib_rule],
+        srcs = no_rules,
         deps = [hdrs_rule],
         provides = provides,
         labels = labels,

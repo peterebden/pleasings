@@ -22,6 +22,10 @@ android-keystore =
 android-keystore-password =
 android-keystore-alias =
 
+[cpp]
+; Clang is required for ThinLTO
+cpptool = clang
+
 [proto]
 protocgoplugin = //third_party/go:protoc-gen-go
 grpcjavaplugin = //third_party/java:protoc-gen-grpc-java
