@@ -19,6 +19,8 @@ Obviously, you must be using sufficiently recent versions of Clang and Gold
 (or lld) in order for this to work.
 """
 
+# Save this for later.
+_original_cc_library = cc_library
 
 _COVERAGE_FLAGS = ' -ftest-coverage -fprofile-arcs -fprofile-dir=.'
 # OSX's ld uses --all_load / --noall_load instead of --whole-archive.
@@ -28,7 +30,7 @@ _NO_WHOLE_ARCHIVE = '-noall_load' if CONFIG.OS == 'darwin' else '--no-whole-arch
 
 def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibility=None, test_only=False,
                compiler_flags=None, linker_flags=None, pkg_config_libs=None, includes=None, defines=None,
-               alwayslink=False, _c=False):
+               alwayslink=False, thinlto=True, _c=False):
     """Generate a C or C++ library target.
 
     Args:
@@ -53,7 +55,25 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
       alwayslink (bool): If True, any binaries / tests using this library will link in all symbols,
                          even if they don't directly reference them. This is useful for e.g. having
                          static members that register themselves at construction time.
+      thinlto (bool): Enables ThinLTO optimisation. Defaults to true but can be selectively disabled.
     """
+    if not thinlto:
+        return _original_cc_library(
+            name = name,
+            srcs = srcs,
+            hdrs = hdrs,
+            private_hdrs = private_hdrs,
+            deps = deps,
+            visibility = visibility,
+            test_only = test_only,
+            compiler_flags = compiler_flags,
+            linker_flags = linker_flags,
+            pkg_config_libs = pkg_config_libs,
+            includes = includes,
+            defines = defines,
+            alwayslink = alwayslink,
+        )
+
     srcs = srcs or []
     hdrs = hdrs or []
     deps = deps or []
@@ -108,7 +128,7 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         output_is_complete = False,
     )
 
-    cmds, tools = _library_cmds(_c, compiler_flags, pkg_config_libs)
+    cmds, tools = _thinlto_library_cmds(_c, compiler_flags, pkg_config_libs)
     # Compile all the sources separately, this is much faster for large numbers of files
     # than giving them all to gcc in one invocation.
     tags = [src.replace('/', '_').replace('.', '_').replace(':', '_').replace('|', '_') for src in srcs]
@@ -427,6 +447,7 @@ def cc_test(name, srcs=None, hdrs=None, compiler_flags=None, linker_flags=None, 
             compiler_flags=compiler_flags,
             test_only=True,
             alwayslink=True,
+            thinlto=False,
             _c=_c,
         )
         deps = deps or []
@@ -528,7 +549,7 @@ def _binary_build_flags(linker_flags, pkg_config_libs, shared=False, alwayslink=
     return ' '.join([objs, build_id_flag, linker_flags, pkg_config_cmd])
 
 
-def _library_cmds(c, compiler_flags, pkg_config_libs, extra_flags=''):
+def _thinlto_library_cmds(c, compiler_flags, pkg_config_libs, extra_flags=''):
     """Returns the commands needed for a cc_library rule."""
     dbg_flags = _build_flags(compiler_flags, pkg_config_libs, c=c, dbg=True)
     opt_flags = _build_flags(compiler_flags, pkg_config_libs, c=c)
