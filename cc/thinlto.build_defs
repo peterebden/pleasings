@@ -111,20 +111,19 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
     # Compile all the sources separately, this is much faster for large numbers of files
     # than giving them all to gcc in one invocation.
     tags = [src.replace('/', '_').replace('.', '_').replace(':', '_').replace('|', '_') for src in srcs]
-    outs = [name + '_' + tag + '.o' for tag in tags]
-    lto_label = 'cc:lto:%s/' % get_base_path()
+    outs = [name + '_' + tag for tag in tags]
     o_rules = [build_rule(
         name = name,
         tag = tag,
         srcs = {'srcs': [src], 'hdrs': hdrs, 'priv': private_hdrs},
-        outs = [out],
+        outs = [out + '.o'],
         optional_outs = ['*.gcno'],  # For coverage
         deps = deps,
         cmd = cmds,
         building_description = 'Compiling...',
         requires = ['cc_hdrs'],
         test_only = test_only,
-        labels = labels + [lto_label + out],
+        labels = labels,
         tools = tools,
         # TODO(pebers): handle includes and defines in _library_cmds as well.
         pre_build = _library_transitive_labels(_c, compiler_flags, pkg_config_libs) if (deps or includes or defines) else None,
@@ -141,6 +140,21 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         building_description = 'Generating LTO bitcode...',
         tools = tools,
     ) for o_rule, tag, out in zip(o_rules, tags, outs)]
+
+    # And for the native object files
+    no_rules = [build_rule(
+        name = name,
+        tag = tag + '_no',
+        srcs = {
+            'o': [o_rule],
+            'bc': [bc_rule],
+        },
+        outs = [out + '.native.o'],
+        cmd = '$TOOL -O2 -o $OUT -x ir $SRCS_O -c -fthinlto-index=$SRCS_BC',
+        deps = [bc_rules],
+        building_description = 'Performing LTO...',
+        tools = tools,
+    ) for o_rule, bc_rule, tag, out in zip(o_rules, bc_rules, tags, outs)]
 
     if len(srcs) > 1:
         # Collect these as a single rule which we can then provide.
