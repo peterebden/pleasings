@@ -136,9 +136,12 @@ def cc_library(name, srcs=None, hdrs=None, private_hdrs=None, deps=None, visibil
         tag = tag + '_bc',
         srcs = [o_rule],
         outs = [out + '.bc'],
-        cmd = '$TOOL -O2 $SRCS -Wl,-plugin-opt,-thinlto-index-only',
+        cmd = '$TOOLS_CC -fuse-ld=$(basename $TOOLS_LD) -O2 $SRCS -Wl,-plugin-opt,-thinlto-index-only',
         building_description = 'Generating LTO bitcode...',
-        tools = tools,
+        tools = {
+            'cc': tools,
+            'ld': [CONFIG.LD_TOOL],
+        },
     ) for o_rule, tag, out in zip(o_rules, tags, outs)]
 
     # And for the native object files
@@ -531,7 +534,7 @@ def _library_cmds(c, compiler_flags, pkg_config_libs, extra_flags=''):
     """Returns the commands needed for a cc_library rule."""
     dbg_flags = _build_flags(compiler_flags, pkg_config_libs, c=c, dbg=True)
     opt_flags = _build_flags(compiler_flags, pkg_config_libs, c=c)
-    cmd_template = '$TOOL -c -flto=thin -I . ${SRCS_SRCS} %s %s'
+    cmd_template = '$TOOL -c -o $OUT -flto=thin -I . ${SRCS_SRCS} %s %s'
     cmds = {
         'dbg': cmd_template % (dbg_flags, extra_flags),
         'opt': cmd_template % (opt_flags, extra_flags),
@@ -544,14 +547,17 @@ def _library_cmds(c, compiler_flags, pkg_config_libs, extra_flags=''):
 def _binary_cmds(c, linker_flags, pkg_config_libs, extra_flags='', shared=False, alwayslink=''):
     """Returns the commands needed for a cc_binary, cc_test or cc_shared_object rule."""
     flags = _binary_build_flags(linker_flags, pkg_config_libs, shared, alwayslink)
+    tool = '$TOOLS_LD' if CONFIG.LINK_WITH_LD_TOOL else '$TOOLS_CC -fuse-ld=$(basename $TOOLS_LD)'
     cmds = {
-        'dbg': '$TOOL -o ${OUT} %s %s' % (flags, extra_flags),
-        'opt': '$TOOL -o ${OUT} %s %s' % (flags, extra_flags),
+        'dbg': '%s -o ${OUT} %s %s' % (tool, flags, extra_flags),
+        'opt': '%s -o ${OUT} %s %s' % (tool, flags, extra_flags),
     }
     if CONFIG.CPP_COVERAGE:
-        cmds['cover'] = '$TOOL -o ${OUT} %s %s %s' % (flags, extra_flags, _COVERAGE_FLAGS)
-    return cmds, [CONFIG.LD_TOOL if CONFIG.LINK_WITH_LD_TOOL else
-                  CONFIG.CC_TOOL if c else CONFIG.CPP_TOOL]
+        cmds['cover'] = '%s -o ${OUT} %s %s %s' % (tool, flags, extra_flags, _COVERAGE_FLAGS)
+    return cmds, {
+        'cc': [CONFIG.CC_TOOL if c else CONFIG.CPP_TOOL],
+        'ld': [CONFIG.LD_TOOL],
+    }
 
 
 def _library_transitive_labels(c, compiler_flags, pkg_config_libs, archive=True):
