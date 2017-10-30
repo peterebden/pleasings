@@ -1,4 +1,5 @@
 package(default_visibility = ['PUBLIC'])
+subinclude('//java:maven_jar')
 
 maven_jar(
     name = 'protoc-gen-grpc-java',

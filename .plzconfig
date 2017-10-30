@@ -35,3 +35,14 @@ sourcelevel = 7
 targetlevel = 7
 defaultmavenrepo = https://repo1.maven.org/maven2
 defaultmavenrepo = https://maven.google.com
+
+[licences]
+accept = BSD 3-Clause
+accept = New BSD License
+accept = Eclipse Public License 1.0
+accept = Apache 2
+accept = Apache 2.0
+accept = ASF 2.0
+accept = The Apache Software License, Version 2.0
+accept = Apache License, Version 2.0
+accept = BSD New license
