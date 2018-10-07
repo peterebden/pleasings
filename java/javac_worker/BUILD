@@ -8,7 +8,7 @@ maven_library(
     name = "javac-worker",
     srcs = glob(["src/**/*.java"]),
     pom = "pom.xml",
-    version = VERSION,
+    version = "13.1.10",
     deps = [":gson"],
 )
 

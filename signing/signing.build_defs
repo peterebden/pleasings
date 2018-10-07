@@ -75,8 +75,8 @@ def detached_signature(name, src, out, labels=None, deps=None, visibility=None):
       deps (list): Dependencies.
       visibility (list): Visibility of the rule.
     """
-    check_config('signing_key', rule='signing', example='~/.gnupg/releases.gpg')
-    check_config('gpg_password', rule='signing', example='12345')
+    check_config('SIGNING_KEY', rule='signing', example='~/.gnupg/releases.gpg')
+    check_config('GPG_PASSWORD', rule='signing', example='12345')
     return genrule(
         name = name,
         srcs = [src],
