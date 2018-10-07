@@ -1,6 +1,4 @@
-subinclude("//build_defs:maven_library")
-
-subinclude("//build_defs:version")
+subinclude("//java:maven_library")
 
 # The rest of the repo uses this tool as a compiler worker, but it obviously
 # can't compile itself.
@@ -11,7 +9,7 @@ maven_library(
     srcs = glob(["src/**/*.java"]),
     pom = "pom.xml",
     version = VERSION,
-    deps = ["//third_party/java:gson"],
+    deps = [":gson"],
 )
 
 java_binary(
@@ -21,4 +19,11 @@ java_binary(
     self_executable = True,
     visibility = ["PUBLIC"],
     deps = [":javac-worker"],
+)
+
+# Obviously this must match whatever is specified in the pom.xml
+maven_jar(
+    name = "gson",
+    hash = "sha1: 19b10af44e08894efb629d90115b0c391eaaf55a",
+    id = "com.google.code.gson:gson:2.8.4",
 )
