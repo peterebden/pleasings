@@ -11,7 +11,7 @@ how one might go about doing that.
 subinclude('//remote')
 
 
-def rust_library(name, srcs, deps=None, visibility=None):
+def rust_library(name:str, srcs:list, deps:list=None, visibility:list=None):
     """Defines a build rule for a Rust library.
 
     Args:
@@ -33,19 +33,19 @@ def rust_library(name, srcs, deps=None, visibility=None):
     )
 
 
-def rust_binary(name, main, deps=None, visibility=None):
+def rust_binary(name:str, srcs:list, deps:list=None, visibility:list=None):
     """Defines a build rule for a Rust standalone binary.
 
     Args:
       name: Name of the rule.
-      main: Source files containing the main() function.
+      srcs: Source files containing the main() function.
       deps: Dependencies of this rule needed for it to compile.
       visibility: Visibility declaration.
     """
     cmd, tools = _rustc_cmds(deps)
     build_rule(
         name = name,
-        srcs = [main],
+        srcs = srcs,
         binary = True,
         outs = [name],
         cmd = cmd,
@@ -56,7 +56,7 @@ def rust_binary(name, main, deps=None, visibility=None):
     )
 
 
-def rust_test(name, srcs, deps=None, visibility=None):
+def rust_test(name:str, srcs:list, deps:list=None, visibility:list=None):
     """Defines a test rule for a Rust library.
 
     Note that while this correctly runs tests, the Rust test runner has no
@@ -88,7 +88,7 @@ def rust_test(name, srcs, deps=None, visibility=None):
     )
 
 
-def _rustc_cmds(deps=None, crate_type=None, test=False):
+def _rustc_cmds(deps:list=None, crate_type:str=None, test:bool=False):
     """Returns the commands to pass to rustc, and tools to use for it."""
     cmd = ['$TOOLS_RUSTC', '$SRCS', '-o', '$OUT']
     if crate_type:
@@ -109,7 +109,8 @@ def _rustc_cmds(deps=None, crate_type=None, test=False):
     }
 
 
-def rust_toolchain(name, version, os=None, arch=None, hashes=None, deps=None, visibility=None):
+def rust_toolchain(name:str, version:str, os:str=None, arch:str=None,
+                   hashes:list=None, deps:list=None, visibility:list=None):
     """Defines rules to fetch a Rust toolchain.
 
     Typically you'd set the name of this rule into rustc_toolchain, either in your .plzconfig
@@ -186,6 +187,39 @@ def rust_toolchain(name, version, os=None, arch=None, hashes=None, deps=None, vi
     filegroup(
         name = name + '_cargo',
         srcs = [extract_rule + '|cargo_bin'],
+        visibility = visibility,
+    )
+
+
+def cargo_library(name:str, version:str, package_name:str=None, cargo_toml:str=None,
+                  deps:list=None, visibility:list=None):
+    """Fetches a dependency using Cargo.
+
+    Does not fetch transitive dependencies. You must specify them in the BUILD file
+    (as with other languages).
+
+    Args:
+      name: Name of the rule.
+      version: Version of the library to install.
+      package_name: Name of the package to install. Defaults to the same as name.
+      cargo_toml: Lets you specify an existing file or rule to act as the Cargo.toml file.
+                  By default one is written for you.
+      deps: Dependencies.
+      visibility: Visibility of the rule.
+    """
+    package_name = package_name or name
+    cargo_toml = cargo_toml or build_rule(
+        name = name,
+        tag = 'cargo_toml',
+        outs = [name + '.toml'],
+        cmd = f'cat > $OUT << EOF\n[package]\nname = "cargo_library"\nversion = "0.1.0"\n[dependencies]\n{package_name} = "{version}"\nEOF',
+    )
+    return build_rule(
+        name = name,
+        srcs = [cargo_toml],
+        cmd = 'mv $SRCS Cargo.toml',
+        outs = ['wibble'],
+        deps = deps,
         visibility = visibility,
     )
 
