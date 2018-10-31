@@ -192,11 +192,13 @@ def rust_toolchain(name:str, version:str, os:str=None, arch:str=None,
 
 
 def cargo_library(name:str, version:str, package_name:str=None, cargo_toml:str=None,
-                  deps:list=None, visibility:list=None):
+                  cargo_lock:str=None, deps:list=None, visibility:list=None):
     """Fetches a dependency using Cargo.
 
     Does not fetch transitive dependencies. You must specify them in the BUILD file
     (as with other languages).
+
+    TODO(peterebden): support for installing a whole buncha dependencies from a single Cargo.toml.
 
     Args:
       name: Name of the rule.
@@ -204,28 +206,44 @@ def cargo_library(name:str, version:str, package_name:str=None, cargo_toml:str=N
       package_name: Name of the package to install. Defaults to the same as name.
       cargo_toml: Lets you specify an existing file or rule to act as the Cargo.toml file.
                   By default one is written for you.
+      cargo_lock: Lets you specify an existing lockfile or rule to act as the Cargo.lock file.
+                  By default it is generated on the fly.
       deps: Dependencies.
       visibility: Visibility of the rule.
     """
     package_name = package_name or name
+    cargo = [(CONFIG.RUST_TOOLCHAIN + '_rustc') if CONFIG.RUST_TOOLCHAIN else CONFIG.CARGO_TOOL]
     cargo_toml = cargo_toml or build_rule(
         name = name,
-        tag = 'cargo_toml',
+        tag = 'toml',
         outs = [name + '.toml'],
         cmd = f'cat > $OUT << EOF\n[package]\nname = "cargo_library"\nversion = "0.1.0"\n[dependencies]\n{package_name} = "{version}"\nEOF',
     )
+    cargo_lock = cargo_lock or build_rule(
+        name = name,
+        tag = 'lock',
+        srcs = [cargo_toml],
+        outs = [name + '.lock'],
+        cmd = 'mv $SRC Cargo.toml && $TOOL update && mv Cargo.lock $OUT',
+        tools = cargo,
+    )
     return build_rule(
         name = name,
-        srcs = [cargo_toml],
-        cmd = 'mv $SRCS Cargo.toml',
+        srcs = {
+            'toml': [cargo_toml],
+            'lock': [cargo_lock],
+        },
+        cmd = 'mv $SRCS_TOML Cargo.toml && mv $SRCS_LOCK Cargo.lock && mkdir src && touch src/lib.rs && $TOOL build',
         outs = ['wibble'],
         deps = deps,
         visibility = visibility,
+        tools = cargo,
     )
 
 
 # Setting these allows anyone who's subincluded this file to use package() to override RUSTC_TOOL.
 # It's also a useful default if it's already installed and on their PATH.
 CONFIG.setdefault('RUSTC_TOOL', 'rustc')
+CONFIG.setdefault('CARGO_TOOL', 'cargo')
 CONFIG.setdefault('RUST_STDLIB', None)
 CONFIG.setdefault('RUST_TOOLCHAIN', None)
