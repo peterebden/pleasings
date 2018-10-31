@@ -4,8 +4,8 @@ subinclude("//rust")
 
 rust_toolchain(
     name = "toolchain",
-    hashes = ["98024c9678f6269f85299f20f90fce264347f0b5"],
-    version = "1.20.0",
+    hashes = ["85ef8092aac5e1a02694a2531e45ded0df22b163"],
+    version = "1.28.0",
 )
 
 cargo_library(
