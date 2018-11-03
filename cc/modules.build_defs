@@ -1,0 +1,262 @@
+"""Contains build defs for supporting C++ modules.
+
+Usage: replace use of cc_library with cc_module.
+Should be possible to interoperate with cc_library as usual.
+
+Large chunks of this are copied from core plz; at some point this will likely migrate in there
+to take advantage of that.
+"""
+
+# Set this to True if you are using Clang to compile your modules (default is GCC).
+# Hopefully this will eventually become unnecessary when the two support the same flags.
+CONFIG.setdefault('CC_MODULES_CLANG', False)
+
+
+def cc_module(name:str, srcs:list=[], hdrs:list=[], interfaces:list=[], private_hdrs:list=[], deps:list=[],
+              visibility:list=None, test_only:bool&testonly=False, compiler_flags:list&cflags&copts=[],
+              linker_flags:list&ldflags&linkopts=[], pkg_config_libs:list=[],
+              pkg_config_cflags:list=[], includes:list=[], defines:list|dict=[]):
+    """Generate a C++ module.
+
+    Args:
+      name (str): Name of the rule
+      srcs (list): C++ source files to compile.
+      hdrs (list): Header files. These will be made available to dependent rules, so the distinction
+                   between srcs and hdrs is important.
+      interfaces (list): Module interface files. Again, these are treated differently to `srcs` in
+                         terms of compilation so the distinction is important.
+      private_hdrs (list): Header files that are available only to this rule and not exported to
+                           dependent rules.
+      deps (list): Dependent rules.
+      visibility (list): Visibility declaration for this rule.
+      test_only (bool): If True, is only available to other test rules.
+      compiler_flags (list): Flags to pass to the compiler.
+      linker_flags (list): Flags to pass to the linker; these will not be used here but will be
+                           picked up by a cc_binary or cc_test rule.
+      pkg_config_libs (list): Libraries to declare a dependency on using `pkg-config --libs`. Again, the ldflags
+                              will be picked up by cc_binary or cc_test rules.
+      pkg_config_cflags (list): Libraries to declare a dependency on using `pkg-config --cflags`.
+      includes (list): List of include directories to be added to the compiler's path.
+      defines (list | dict): List of tokens to define in the preprocessor.
+                             Alternatively can be a dict of name -> value to define, in which case
+                             values are surrounded by quotes.
+    """
+
+    # Handle defines being passed as a dict, as a nicety for the user.
+    if isinstance(defines, dict):
+        defines = [k if v is None else f'{k}=\\"{v}\\"' for k, v in sorted(defines.items())]
+
+    pkg_name = package_name()
+    labels = (['cc:ld:' + flag for flag in linker_flags] +
+              ['cc:pc:' + lib for lib in pkg_config_libs] +
+              ['cc:pcc:' + cflag for cflag in pkg_config_cflags] +
+              ['cc:inc:' + join_path(pkg_name, include) for include in includes] +
+              ['cc:def:' + define for define in defines])
+
+    if not srcs and not interfaces:
+        # Header-only library, no compilation needed.
+        return filegroup(
+            name = name,
+            srcs = hdrs,
+            exported_deps = deps,
+            labels = labels,
+            test_only = test_only,
+            visibility = visibility,
+            output_is_complete = False,
+        )
+
+    # Collect the headers for other rules
+    provides = {}
+    extra_deps = []
+    if hdrs:
+        hdrs_rule = filegroup(
+            name = name,
+            tag = 'hdrs',
+            srcs = hdrs,
+            requires = ['cc_hdrs'],
+            deps = deps,
+            test_only = test_only,
+            labels = labels,
+            output_is_complete = False,
+        )
+        provides['cc_hdrs'] = hdrs_rule
+        extra_deps = [hdrs_rule]
+
+    pre_build = _library_transitive_labels(compiler_flags, pkg_config_libs, pkg_config_cflags) if (deps or includes or defines) else None
+
+    if interfaces:
+        # Generate the module interface file
+        xflags = ['-fmodules-ts --precompile -x c++-module -o $OUT' if CONFIG.CC_MODULES_CLANG else
+                  '-fmodules -fmodule-output=$OUT']
+        cmds, tools = _library_cmds(compiler_flags + xflags, pkg_config_libs, pkg_config_cflags, archive=False)
+        interface_rule = build_rule(
+            name = name,
+            tag = 'interface',
+            srcs = {'srcs': interfaces, 'hdrs': hdrs, 'priv': private_hdrs},
+            outs = [name + '.pcm'],
+            optional_outs = ['*.gcno'],  # For coverage
+            deps = deps,
+            cmd = cmds,
+            building_description = 'Compiling...',
+            requires = ['cc_hdrs', 'cc_mod'],
+            test_only = test_only,
+            labels = labels,
+            tools = tools,
+            pre_build = pre_build,
+            needs_transitive_deps = True,
+        )
+        # We also need to compile the interface files to object files.
+        # TODO(peterebden): Revisit this later - this is a bit inefficient for GCC (since we compile
+        #                   them twice) but seems to be required for Clang right now.
+        srcs += interfaces
+        interfaces = [interface_rule]
+        extra_deps += [interface_rule]
+        provides['cc_mod'] = interface_rule
+
+    xflags = ['-fmodules-ts' if CONFIG.CC_MODULES_CLANG else '-fmodules']
+    cmds, tools = _library_cmds(compiler_flags + xflags, pkg_config_libs, pkg_config_cflags)
+
+    if len(srcs) > 1:
+        # Compile all the sources separately, this is much faster for large numbers of files
+        # than giving them all to gcc in one invocation.
+        a_rules = []
+        for src in srcs:
+            suffix = src.replace('/', '_').replace('.', '_').replace(':', '_').replace('|', '_')
+            a_name = f'_{name}#{suffix}'
+            a_rule = build_rule(
+                name = a_name,
+                srcs = {'srcs': [src], 'hdrs': hdrs, 'priv': private_hdrs},
+                outs = [a_name + '.a'],
+                optional_outs = ['*.gcno'],  # For coverage
+                deps = deps,
+                cmd = cmds,
+                building_description = 'Compiling...',
+                requires = ['cc_hdrs', 'cc_mod'],
+                test_only = test_only,
+                labels = labels,
+                tools = tools,
+                pre_build = pre_build,
+                needs_transitive_deps = True,
+            )
+            a_rules.append(a_rule)
+
+        # Combine the archives into one.
+        a_rule = build_rule(
+            name = name,
+            tag = 'a',
+            srcs = a_rules,
+            outs = [name + '.a'],
+            cmd = 'echo $SRCS | xargs -n 1 $TOOL xo && $TOOL rcs $OUT *.o',
+            building_description = 'Archiving...',
+            test_only = test_only,
+            labels = labels,
+            output_is_complete = True,
+            deps = deps + extra_deps,  # This is a little suboptimal but makes sure they get built when needed.
+            tools = [CONFIG.AR_TOOL],
+        )
+
+        # Filegroup to pick that up with extra deps. This is a little annoying but means that
+        # things depending on this get the combined rule and not the individual ones, but do get
+        # all the other dependencies which are probably important.
+        lib_rule = filegroup(
+            name = name,
+            tag = 'lib',
+            srcs = [a_rule],
+            deps = deps,
+            test_only = test_only,
+            labels = labels,
+            output_is_complete=False,
+        )
+
+    else:
+        # Single source file (or module), optimise slightly by not extracting & remerging the archive.
+        cc_rule = build_rule(
+            name = name,
+            tag = 'cc',
+            srcs = {'srcs': srcs, 'hdrs': hdrs, 'priv': private_hdrs},
+            outs = [name + '.a'],
+            optional_outs = ['*.gcno'],  # For coverage
+            deps = deps,
+            cmd = cmds,
+            building_description = 'Compiling...',
+            requires = ['cc_hdrs', 'cc_mod'],
+            test_only = test_only,
+            labels = labels,
+            tools = tools,
+            pre_build = pre_build,
+            needs_transitive_deps = True,
+        )
+        # Need another rule to cover require / provide stuff. This is getting a bit complicated...
+        lib_rule = filegroup(
+            name = name,
+            tag = 'lib',
+            srcs = [cc_rule],
+            deps = deps,
+            test_only = test_only,
+            labels = labels,
+            output_is_complete=False,
+        )
+
+    provides['cc'] = lib_rule
+    return filegroup(
+        name = name,
+        srcs = [lib_rule],
+        deps = extra_deps,
+        provides = provides,
+        test_only = test_only,
+        visibility = visibility,
+        output_is_complete = False,
+    )
+
+
+def _library_cmds(compiler_flags, pkg_config_libs, pkg_config_cflags, extra_flags='', archive=True):
+    """Returns the commands needed for a cc_library rule."""
+    dbg_flags = _build_flags(compiler_flags, pkg_config_libs, pkg_config_cflags, dbg=True)
+    opt_flags = _build_flags(compiler_flags, pkg_config_libs, pkg_config_cflags)
+    cmd_template = '$TOOLS_CC -c -I . ${SRCS_SRCS} %s %s'
+    if archive:
+        cmd_template += ' && $TOOLS_AR rcs $OUT *.o'
+    cmds = {
+        'dbg': cmd_template % (dbg_flags, extra_flags),
+        'opt': cmd_template % (opt_flags, extra_flags),
+    }
+    if CONFIG.CPP_COVERAGE:
+        cmds['cover'] = cmd_template % (dbg_flags + _COVERAGE_FLAGS, extra_flags)
+    return cmds, {
+        'cc': [CONFIG.CPP_TOOL],
+        'ar': [CONFIG.AR_TOOL if archive else None],
+    }
+
+
+def _library_transitive_labels(compiler_flags, pkg_config_libs, pkg_config_cflags, archive=True):
+    """Applies commands from transitive labels to a cc_library rule."""
+    def apply_transitive_labels(name):
+        labels = get_labels(name, 'cc:')
+        flags = ['-isystem %s' % l[4:] for l in labels if l.startswith('inc:')]
+        flags.extend(['-D' + l[4:] for l in labels if l.startswith('def:')])
+
+        pkg_config_libs.extend([l[3:] for l in labels if l.startswith('pc:') and l[3:] not in pkg_config_libs])
+        pkg_config_cflags.extend([l[4:] for l in labels if l.startswith('pcc:') and l[4:] not in pkg_config_cflags])
+
+        if flags:  # Don't update if there aren't any relevant labels
+            cmds, _ = _library_cmds(compiler_flags, pkg_config_libs, pkg_config_cflags, ' '.join(flags), archive=archive)
+            for k, v in cmds.items():
+                set_command(name, k, v)
+    return apply_transitive_labels
+
+
+def _build_flags(compiler_flags:list, pkg_config_libs:list, pkg_config_cflags:list, defines=None, dbg=False):
+    """Builds flags that we'll pass to the compiler invocation."""
+    cflags = CONFIG.DEFAULT_DBG_CPPFLAGS if dbg else CONFIG.DEFAULT_OPT_CPPFLAGS
+    compiler_flags = [cflags, '-fPIC'] + compiler_flags  # N.B. order is important!
+    if defines:
+        compiler_flags += ['-D' + define for define in defines]
+
+    pkg_config_cmd = ' '.join([f'`pkg-config --cflags {x}`' for x in pkg_config_cflags + pkg_config_libs])
+
+    return ' '.join(compiler_flags) + ' ' + pkg_config_cmd
+
+_COVERAGE_FLAGS = ' -ftest-coverage -fprofile-arcs -fprofile-dir=.'
+# OSX's ld uses --all_load / --noall_load instead of --whole-archive.
+_WHOLE_ARCHIVE = '-all_load' if CONFIG.OS == 'darwin' else '--whole-archive'
+_NO_WHOLE_ARCHIVE = '-noall_load' if CONFIG.OS == 'darwin' else '--no-whole-archive'

@@ -10,3 +10,9 @@ filegroup(
     srcs = ["thinlto.build_defs"],
     visibility = ["PUBLIC"],
 )
+
+filegroup(
+    name = "modules",
+    srcs = ["modules.build_defs"],
+    visibility = ["PUBLIC"],
+)
